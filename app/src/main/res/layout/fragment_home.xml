@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:context=".ui.home.HomeFragment">
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/title_scan_nfc"
+        android:textSize="@dimen/text_size_large"
+        android:textStyle="bold"
+        android:layout_gravity="center_horizontal"
+        android:paddingBottom="@dimen/padding_large" />
+
+    <!-- Instructions -->
+    <TextView
+        android:id="@+id/instructions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/instructions_scan_nfc"
+        android:textSize="@dimen/text_size_small"
+        android:layout_gravity="center_horizontal"
+        android:paddingBottom="32dp" />
+
+    <!-- Tag ID -->
+    <TextView
+        android:id="@+id/tag_id_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/tag_id_label"
+        android:textSize="@dimen/text_size_medium"
+        android:paddingBottom="@dimen/padding_medium" />
+
+    <TextView
+        android:id="@+id/tag_id_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/na"
+        android:textSize="@dimen/text_size_medium"
+        android:paddingBottom="@dimen/padding_large" />
+
+    <!-- Name -->
+    <TextView
+        android:id="@+id/name_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/name_label"
+        android:textSize="@dimen/text_size_medium"
+        android:paddingBottom="@dimen/padding_medium" />
+
+    <TextView
+        android:id="@+id/name_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/na"
+        android:textSize="@dimen/text_size_medium"
+        android:paddingBottom="@dimen/padding_large" />
+
+    <!-- Owner -->
+    <TextView
+        android:id="@+id/owner_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/owner_label"
+        android:textSize="@dimen/text_size_medium"
+        android:paddingBottom="@dimen/padding_medium" />
+
+    <TextView
+        android:id="@+id/owner_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/na"
+        android:textSize="@dimen/text_size_medium"
+        android:paddingBottom="@dimen/padding_large" />
+
+    <!-- Optional Image -->
+    <ImageView
+        android:id="@+id/tag_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/image_label"
+        android:visibility="gone"
+        android:paddingBottom="@dimen/padding_large" />
+
+</LinearLayout>
