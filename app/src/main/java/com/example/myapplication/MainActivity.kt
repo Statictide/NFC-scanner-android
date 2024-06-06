@@ -7,10 +7,9 @@ import android.nfc.NfcAdapter
 import android.nfc.Tag
 import android.os.Bundle
 import android.util.Log
-import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.os.bundleOf
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
@@ -33,11 +32,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var pendingIntent: PendingIntent
     private lateinit var intentFilters: Array<IntentFilter>
 
-    // Views
-    private lateinit var tagIdTextView: TextView
-    private lateinit var nameTextView: TextView
-    private lateinit var ownerTextView: TextView
-    private lateinit var tagImageView: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,15 +50,8 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
-        // Extracting views
-        tagIdTextView = findViewById(R.id.tag_id_value);
-        nameTextView = findViewById(R.id.name_value);
-        ownerTextView = findViewById(R.id.owner_value);
-        tagImageView = findViewById(R.id.tag_image);
-
         // NFC
-        setupNFC();
-
+        setupNFC()
     }
 
     private fun setupNFC() {
@@ -112,41 +99,42 @@ class MainActivity : AppCompatActivity() {
 
         var call = ApiClient.apiService.getEntitiesByTagId(tagIdHex)
 
-        tagIdTextView.text = "loading..."
-
+        val context = this
         call.enqueue(object : Callback<Array<Entity>> {
             override fun onResponse(call: Call<Array<Entity>>, response: Response<Array<Entity>>) {
                 if (!response.isSuccessful) {
                     // Handle error
-                    Log.e("API_ERROR", "Error: ${response.code()} ${response.message()}")
-                    tagIdTextView.text = String.format("Error: ${response.code()} ${response.message()}")
+                    val msg = String.format("Error: ${response.code()} ${response.message()}")
+                    Log.e("API_ERROR", msg)
+                    Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
                     return
                 }
 
                 val entities = response.body()
                 if (entities == null) {
-                    tagIdTextView.text = "Null"
+                    Toast.makeText(context, "Null", Toast.LENGTH_SHORT).show();
                     return
                 }
 
                 // Handle the retrieved post data
                 if (entities.isEmpty()) {
-                    tagIdTextView.text = tagIdHex
-                    nameTextView.text = ""
-                    ownerTextView.text = ""
+                    Toast.makeText(context, "Unknown tag", Toast.LENGTH_SHORT).show();
                     return
                 }
-
                 val entity = entities[0]
-                tagIdTextView.text = entity.tag_id
-                nameTextView.text = entity.name
-                ownerTextView.text = entity.owner
+
+                // Delegate to active fragment
+                val navController = findNavController(R.id.nav_host_fragment_activity_main)
+                navController.navigateUp()
+                val bundle = bundleOf("tag_id" to entity.tag_id, "name" to entity.name, "owner" to entity.owner)
+                navController.navigate(R.id.navigation_home, bundle)
             }
 
             override fun onFailure(call: Call<Array<Entity>>, t: Throwable) {
                 // Handle failure
                 Log.e("API_ERROR", "Failure: ${t.message}")
-                tagIdTextView.text = t.message
+                Toast.makeText(context, t.message, Toast.LENGTH_LONG).show()
+                return
             }
         })
     }
