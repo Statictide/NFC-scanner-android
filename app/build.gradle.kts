@@ -1,15 +1,17 @@
+import com.android.sdklib.AndroidVersion
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
 }
 
 android {
-    namespace = "com.example.myapplication"
+    namespace = "dk.sierrasoftware.nfcscanner"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.myapplication"
-        minSdk = 24
+        applicationId = "dk.sierrasoftware.nfcscanner"
+        minSdk = 33
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"

@@ -11,4 +11,5 @@
     <string name="owner_label">Owner:</string>
     <string name="image_label">Image:</string>
     <string name="na">N/A</string>
+    <string name="assign_button">Assign to</string>
 </resources>

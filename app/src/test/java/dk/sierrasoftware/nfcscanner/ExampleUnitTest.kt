@@ -1,4 +1,4 @@
-package com.example.myapplication
+package dk.sierrasoftware.nfcscanner
 
 import org.junit.Test
 

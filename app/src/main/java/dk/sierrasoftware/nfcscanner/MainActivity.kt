@@ -1,4 +1,4 @@
-package com.example.myapplication
+package dk.sierrasoftware.nfcscanner
 
 import android.app.PendingIntent
 import android.content.Intent
@@ -7,6 +7,7 @@ import android.nfc.NfcAdapter
 import android.nfc.Tag
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
@@ -14,9 +15,9 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import com.example.myapplication.api.ApiClient
-import com.example.myapplication.api.Entity
-import com.example.myapplication.databinding.ActivityMainBinding
+import dk.sierrasoftware.nfcscanner.api.ApiClient
+import dk.sierrasoftware.nfcscanner.api.EntityClosureDTO
+import dk.sierrasoftware.nfcscanner.databinding.ActivityMainBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import retrofit2.Call
 import retrofit2.Callback
@@ -93,15 +94,15 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        val tag = intent.getParcelableExtra<Tag>(NfcAdapter.EXTRA_TAG)
-        val tagId = tag!!.id
+        val tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG, Tag::class.java)!!
+        val tagId = tag.id
         val tagIdHex: String = bytesToHex(tagId)
 
-        var call = ApiClient.apiService.getEntitiesByTagId(tagIdHex)
+        val call = ApiClient.apiService.getEntitiesByTagUid(tagIdHex)
 
         val context = this
-        call.enqueue(object : Callback<Array<Entity>> {
-            override fun onResponse(call: Call<Array<Entity>>, response: Response<Array<Entity>>) {
+        call.enqueue(object : Callback<EntityClosureDTO> {
+            override fun onResponse(call: Call<EntityClosureDTO>, response: Response<EntityClosureDTO>) {
                 if (!response.isSuccessful) {
                     // Handle error
                     val msg = String.format("Error: ${response.code()} ${response.message()}")
@@ -110,27 +111,21 @@ class MainActivity : AppCompatActivity() {
                     return
                 }
 
-                val entities = response.body()
-                if (entities == null) {
+                val entity = response.body()
+                if (entity == null) {
                     Toast.makeText(context, "Null", Toast.LENGTH_SHORT).show();
                     return
                 }
 
-                // Handle the retrieved post data
-                if (entities.isEmpty()) {
-                    Toast.makeText(context, "Unknown tag", Toast.LENGTH_SHORT).show();
-                    return
-                }
-                val entity = entities[0]
-
                 // Delegate to active fragment
                 val navController = findNavController(R.id.nav_host_fragment_activity_main)
                 navController.navigateUp()
-                val bundle = bundleOf("tag_id" to entity.tag_id, "name" to entity.name, "owner" to entity.owner)
+                val bundle = bundleOf("tag_uid" to entity.entity.tag_uid, "name" to entity.entity.name)
                 navController.navigate(R.id.navigation_home, bundle)
             }
 
-            override fun onFailure(call: Call<Array<Entity>>, t: Throwable) {
+            override fun onFailure(call: Call<EntityClosureDTO>, t: Throwable) {
+                // TODO: Add option to create new entity
                 // Handle failure
                 Log.e("API_ERROR", "Failure: ${t.message}")
                 Toast.makeText(context, t.message, Toast.LENGTH_LONG).show()
@@ -146,5 +141,10 @@ class MainActivity : AppCompatActivity() {
             sb.append(String.format("%02X", b))
         }
         return sb.toString()
+    }
+
+
+    fun assignEntityTo(view: View) {
+        Toast.makeText(this, "Scan nfc tag to assign", Toast.LENGTH_SHORT).show();
     }
 }

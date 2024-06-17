@@ -62,23 +62,6 @@
         android:textSize="@dimen/text_size_medium"
         android:paddingBottom="@dimen/padding_large" />
 
-    <!-- Owner -->
-    <TextView
-        android:id="@+id/owner_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/owner_label"
-        android:textSize="@dimen/text_size_medium"
-        android:paddingBottom="@dimen/padding_medium" />
-
-    <TextView
-        android:id="@+id/owner_value"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/na"
-        android:textSize="@dimen/text_size_medium"
-        android:paddingBottom="@dimen/padding_large" />
-
     <!-- Optional Image -->
     <ImageView
         android:id="@+id/tag_image"
@@ -87,5 +70,17 @@
         android:contentDescription="@string/image_label"
         android:visibility="gone"
         android:paddingBottom="@dimen/padding_large" />
+
+    <!-- Assign Button with api call. Constrain to bottom-->
+    <Button
+        android:id="@+id/assign_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/assign_button"
+        android:padding="@dimen/padding_medium"
+        android:layout_gravity="center_horizontal"
+        android:enabled="false"
+        android:onClick="assignEntityTo"
+        />
 
 </LinearLayout>
