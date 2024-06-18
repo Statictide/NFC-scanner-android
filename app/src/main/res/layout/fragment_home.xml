@@ -62,6 +62,24 @@
         android:textSize="@dimen/text_size_medium"
         android:paddingBottom="@dimen/padding_large" />
 
+
+    <!-- Parrent -->
+    <TextView
+        android:id="@+id/parent_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/name_label"
+        android:textSize="@dimen/text_size_medium"
+        android:paddingBottom="@dimen/padding_medium" />
+
+    <TextView
+        android:id="@+id/parent_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/na"
+        android:textSize="@dimen/text_size_medium"
+        android:paddingBottom="@dimen/padding_large" />
+
     <!-- Optional Image -->
     <ImageView
         android:id="@+id/tag_image"

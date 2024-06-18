@@ -52,6 +52,10 @@ class HomeFragment : Fragment() {
             assignButton.isEnabled = false
         }
 
+        arguments?.getString("parent")?.let { binding.parentValue.text = it }?: run {
+            binding.parentValue.text = R.string.na.toString()
+        }
+
         return root
     }
 
