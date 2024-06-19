@@ -5,6 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import dk.sierrasoftware.nfcscanner.R
@@ -45,7 +47,30 @@ class HomeFragment : Fragment() {
         arguments?.getString("tag_uid")?.let { assignButton.isEnabled = true }
         arguments?.getString("parent")?.let { binding.parentValue.text = it }
 
+
+        // Example data
+        val items = listOf("Item 1", "Item 2", "Item 3", "Item 4")
+
+        // Find the LinearLayout in the ScrollView
+
+        // Iterate over the list and create TextView for each item
+        pupulateChildrenLayout(items)
+
         return root
+    }
+
+    private fun pupulateChildrenLayout(items: List<String>) {
+        val linearLayout: LinearLayout = binding.childrenLayout
+
+        for (item in items) {
+            val textView = TextView(context)
+            textView.text = item
+            textView.textSize = 18f  // Customize the text size if needed
+            textView.setPadding(0, 10, 0, 10)  // Add padding if needed
+
+            // Add the TextView to the LinearLayout
+            linearLayout.addView(textView)
+        }
     }
 
     override fun onDestroyView() {
