@@ -162,7 +162,7 @@ class MainActivity : AppCompatActivity() {
         this.lastSeenEntity = entity
 
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
-        val bundle = bundleOf("tag_uid" to entity.entity.tag_uid, "name" to entity.entity.name, "parent" to entity.parent?.name ?: "None")
+        val bundle = bundleOf("tag_uid" to entity.entity.tag_uid, "name" to entity.entity.name, "parent" to (entity.parent?.name ?: "None"))
 
         navController.navigateUp()
         navController.navigate(R.id.navigation_home, bundle)

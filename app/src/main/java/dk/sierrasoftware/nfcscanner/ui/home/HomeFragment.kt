@@ -40,21 +40,10 @@ class HomeFragment : Fragment() {
         // Bind views
         assignButton = root.findViewById(R.id.assign_button)
 
-        arguments?.getString("tag_uid")?.let { binding.tagIdValue.text = it } ?: run {
-            binding.tagIdValue.text = R.string.na.toString()
-        }
-
-        arguments?.getString("name")?.let { binding.nameValue.text = it }?: run {
-            binding.nameValue.text = R.string.na.toString()
-        }
-
-        arguments?.getString("tag_uid")?.let { assignButton.isEnabled = true }?: run {
-            assignButton.isEnabled = false
-        }
-
-        arguments?.getString("parent")?.let { binding.parentValue.text = it }?: run {
-            binding.parentValue.text = R.string.na.toString()
-        }
+        arguments?.getString("tag_uid")?.let { binding.tagIdValue.text = it }
+        arguments?.getString("name")?.let { binding.nameValue.text = it }
+        arguments?.getString("tag_uid")?.let { assignButton.isEnabled = true }
+        arguments?.getString("parent")?.let { binding.parentValue.text = it }
 
         return root
     }
