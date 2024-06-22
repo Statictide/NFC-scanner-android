@@ -11,7 +11,6 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.os.bundleOf
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
@@ -52,8 +51,7 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
-        val appBarConfiguration = AppBarConfiguration(setOf(
-                R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications))
+        val appBarConfiguration = AppBarConfiguration(setOf(R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications))
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
@@ -145,8 +143,8 @@ class MainActivity : AppCompatActivity() {
                     return
                 }
 
-                // Else show entity like normal
-                showEntity(entityClosure)
+                // Show entity
+                showHomeFragment(entityClosure)
             }
 
             override fun onFailure(call: Call<EntityClosureDTO>, t: Throwable) {
@@ -158,14 +156,12 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    private fun showEntity(entity: EntityClosureDTO) {
-        this.lastSeenEntity = entity
+    private fun showHomeFragment(entityClosure: EntityClosureDTO) {
+        this.lastSeenEntity = entityClosure
+        val actionNavigationHome = MobileNavigationDirections.actionNavigationHome(entityClosure)
 
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
-        val bundle = bundleOf("tag_uid" to entity.entity.tag_uid, "name" to entity.entity.name, "parent" to (entity.parent?.name ?: "None"))
-
-        navController.navigateUp()
-        navController.navigate(R.id.navigation_home, bundle)
+        navController.navigate(actionNavigationHome)
     }
 
     private fun assignEntityToTag(entryId: UInt, newParentId: UInt) {
@@ -189,7 +185,7 @@ class MainActivity : AppCompatActivity() {
                     return
                 }
 
-                showEntity(entity)
+                showHomeFragment(entity)
             }
 
             override fun onFailure(call: Call<EntityClosureDTO>, t: Throwable) {

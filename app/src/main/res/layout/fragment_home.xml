@@ -45,10 +45,9 @@
                 android:paddingBottom="32dp"
                 android:text="@string/instructions_scan_nfc"
                 android:textSize="@dimen/text_size_small" />
-
-
         </LinearLayout>
 
+        <!-- Entity info -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -57,7 +56,7 @@
             <!-- Name -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
                 <TextView
@@ -73,7 +72,6 @@
                     android:id="@+id/name_value"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="@dimen/padding_large"
                     android:text="@string/na"
                     android:textSize="@dimen/text_size_medium" />
             </LinearLayout>
@@ -81,7 +79,7 @@
             <!-- Tag ID -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
                 <TextView
@@ -97,7 +95,6 @@
                     android:id="@+id/tag_id_value"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="@dimen/padding_large"
                     android:text="@string/na"
                     android:textSize="@dimen/text_size_medium" />
             </LinearLayout>
@@ -105,7 +102,7 @@
             <!-- Parrent -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
                 <TextView
@@ -121,21 +118,36 @@
                     android:id="@+id/parent_value"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="@dimen/padding_large"
                     android:text="@string/na"
                     android:textSize="@dimen/text_size_medium" />
             </LinearLayout>
+        </LinearLayout>
 
-            <ImageView
-                android:id="@+id/tag_image"
+
+        <!--
+        <ImageView
+            android:id="@+id/tag_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/image_label"
+            android:visibility="gone" />
+        -->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="@dimen/padding_medium">
+
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:contentDescription="@string/image_label"
-                android:paddingBottom="@dimen/padding_large"
-                android:visibility="gone" />
-
+                android:paddingStart="0dp"
+                android:paddingEnd="@dimen/padding_medium"
+                android:text="Children:"
+                android:textSize="@dimen/text_size_medium" />
         </LinearLayout>
-    </LinearLayout>
+    </LinearLayout> <!-- Header end -->
 
 
     <!-- Assign Button with api call. Constrain to bottom-->
@@ -153,12 +165,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/textView3"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="TextView" />
         </LinearLayout>
     </ScrollView>
 

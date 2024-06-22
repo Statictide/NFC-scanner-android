@@ -11,12 +11,11 @@ interface ApiService {
     @GET("api/v1/entities/by-tag")
     fun getEntitiesByTagUid(@Query("tag_uid") tagUid: String): Call<EntityClosureDTO>
 
+    @GET("api/v1/entities")
+    fun getEntitiesByUser(@Query("user_id") user_id: UInt): Call<List<EntityDTO>>
+
     @PATCH("api/v1/entities/{id}")
     fun patchEntity(@Path("id") id: UInt, @Body entity: PatchEntityDTO): Call<EntityClosureDTO>
-
-
 }
 
-class EntityDTO (val id: UInt, val tag_uid: String, val name: String, val parent_id: UInt)
-class EntityClosureDTO (val entity: EntityDTO, val parent: EntityDTO?, val children: Array<EntityDTO>)
-class PatchEntityDTO ( val parent_id: UInt)
+
