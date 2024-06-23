@@ -6,8 +6,19 @@
     app:startDestination="@+id/navigation_home">
 
     <action
-        android:id="@+id/action_navigation_home"
+        android:id="@+id/action_navigation_home_with_tag_uid"
         app:destination="@id/navigation_home">
+        <argument
+            android:name="tag_uid"
+            app:argType="string"/>
+    </action>
+
+    <action
+        android:id="@+id/action_navigation_home_with_entity_id"
+        app:destination="@id/navigation_home">
+        <argument
+            android:name="entity_id"
+            app:argType="integer"/>
     </action>
 
     <fragment
@@ -16,10 +27,13 @@
         android:label="@string/title_home"
         tools:layout="@layout/fragment_home" >
         <argument
-            android:name="entityClosure"
-            app:argType="dk.sierrasoftware.nfcscanner.api.EntityClosureDTO"
-            app:nullable="true"
-            android:defaultValue="@null" />
+            android:name="tag_uid"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="entity_id"
+            app:argType="integer"
+            android:defaultValue="0" />
     </fragment>
 
     <fragment

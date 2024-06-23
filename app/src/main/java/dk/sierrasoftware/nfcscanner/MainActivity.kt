@@ -34,10 +34,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var pendingIntent: PendingIntent
     private lateinit var intentFilters: Array<IntentFilter>
 
-    private lateinit var assignParentDialog: AlertDialog
-    private var assignParentOnEntityIdIsActive: UInt? = null // Signal to assign entity to tag on next NFC scan
-
-    private var lastSeenEntity: EntityClosureDTO? = null
+    public var assignParentOnEntityIdIsActive: UInt? = null // Signal to assign entity to tag on next NFC scan
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,7 +54,6 @@ class MainActivity : AppCompatActivity() {
 
         // NFC
         setupNFC()
-        setupAssignParentDialog()
     }
 
     private fun setupNFC() {
@@ -74,20 +70,6 @@ class MainActivity : AppCompatActivity() {
         )
 
         intentFilters = arrayOf(IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED));
-    }
-
-    private fun setupAssignParentDialog() {
-        val builder = AlertDialog.Builder(this)
-        builder.setTitle("NFC Scan")
-        builder.setMessage("Approach an NFC tag to assign.")
-
-        // Set id to signal assignment on next NFC scan
-        // Remove it when dialog is dismissed, to remove assignment signal
-        builder.setOnDismissListener {
-            assignParentOnEntityIdIsActive = null;
-        }
-
-        assignParentDialog = builder.create();
     }
 
     override fun onResume() {
@@ -107,94 +89,14 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
+        // Get tag uid
         val tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG, Tag::class.java)!!
-        val tagId = tag.id
-        val tagIdHex: String = bytesToHex(tagId)
+        val tagUid: String = bytesToHex(tag.id)
 
-        handleScannedTag(tagIdHex)
-    }
-
-    private fun handleScannedTag(tagIdHex: String) {
-        val call = ApiClient.apiService.getEntitiesByTagUid(tagIdHex)
-
-        val context = this
-        call.enqueue(object : Callback<EntityClosureDTO> {
-            override fun onResponse(
-                call: Call<EntityClosureDTO>,
-                response: Response<EntityClosureDTO>
-            ) {
-                if (!response.isSuccessful) {
-                    val msg = String.format("Error: ${response.code()} ${response.message()}")
-                    Log.e("API_ERROR", "Failure: ${msg}")
-                    Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
-                    return
-                }
-
-                val entityClosure = response.body()
-                if (entityClosure == null) {
-                    Toast.makeText(context, "Null", Toast.LENGTH_SHORT).show();
-                    return
-                }
-
-                // If assign in progress, assign entity to tag
-                assignParentOnEntityIdIsActive?.let {
-                    assignParentDialog.dismiss()
-                    assignEntityToTag(it, entityClosure.entity.id)
-                    return
-                }
-
-                // Show entity
-                showHomeFragment(entityClosure)
-            }
-
-            override fun onFailure(call: Call<EntityClosureDTO>, t: Throwable) {
-                // TODO: Add option to create new entity
-                Log.e("API_ERROR", "Failure: ${t.message}")
-                Toast.makeText(context, t.message, Toast.LENGTH_LONG).show()
-                return
-            }
-        })
-    }
-
-    private fun showHomeFragment(entityClosure: EntityClosureDTO) {
-        this.lastSeenEntity = entityClosure
-        val actionNavigationHome = MobileNavigationDirections.actionNavigationHome(entityClosure)
-
+        // Navigate
+        val actionNavigationHome = MobileNavigationDirections.actionNavigationHomeWithTagUid(tagUid, 0)
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
         navController.navigate(actionNavigationHome)
-    }
-
-    private fun assignEntityToTag(entryId: UInt, newParentId: UInt) {
-        val patchEntity = PatchEntityDTO(newParentId)
-        val call = ApiClient.apiService.patchEntity(entryId, patchEntity)
-
-        val context = this
-        call.enqueue(object : Callback<EntityClosureDTO> {
-            override fun onResponse(call: Call<EntityClosureDTO>, response: Response<EntityClosureDTO>) {
-                if (!response.isSuccessful) {
-                    // Handle error
-                    val msg = String.format("Error: ${response.code()} ${response.message()}")
-                    Log.e("API_ERROR", msg)
-                    Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
-                    return
-                }
-
-                val entity = response.body()
-                if (entity == null) {
-                    Toast.makeText(context, "Null", Toast.LENGTH_SHORT).show();
-                    return
-                }
-
-                showHomeFragment(entity)
-            }
-
-            override fun onFailure(call: Call<EntityClosureDTO>, t: Throwable) {
-                // Handle failure
-                Log.e("API_ERROR", "Failure: ${t.message}")
-                Toast.makeText(context, t.message, Toast.LENGTH_LONG).show()
-                return
-            }
-        })
     }
 
     // Helper method to convert byte array to hexadecimal string
@@ -206,12 +108,5 @@ class MainActivity : AppCompatActivity() {
         return sb.toString()
     }
 
-    fun assignEntityTo(view: View) {
-        showAssignParentPopup(lastSeenEntity!!.entity.id)
-    }
 
-    private fun showAssignParentPopup(entity_id: UInt) {
-        assignParentOnEntityIdIsActive = entity_id;
-        assignParentDialog.show()
-    }
 }
