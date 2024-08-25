@@ -53,53 +53,54 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Name -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:paddingBottom="8dp">
 
                 <TextView
                     android:id="@+id/name_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingStart="0dp"
-                    android:paddingEnd="@dimen/padding_medium"
                     android:text="@string/name_label"
-                    android:textSize="@dimen/text_size_medium" />
+                    android:textSize="@dimen/text_size_medium"
+                    android:paddingEnd="8dp" />
 
                 <TextView
                     android:id="@+id/name_value"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/na"
-                    android:textSize="@dimen/text_size_medium" />
+                    android:textSize="@dimen/text_size_medium"/>
             </LinearLayout>
 
-            <!-- Tag ID -->
+            <!-- Tag ID Row -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:paddingBottom="8dp">
 
                 <TextView
                     android:id="@+id/tag_id_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingStart="0dp"
-                    android:paddingEnd="@dimen/padding_medium"
                     android:text="@string/tag_id_label"
-                    android:textSize="@dimen/text_size_medium" />
+                    android:textSize="@dimen/text_size_medium"
+
+                    android:paddingEnd="8dp" />
 
                 <TextView
                     android:id="@+id/tag_id_value"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/na"
-                    android:textSize="@dimen/text_size_medium" />
+                    android:textSize="@dimen/text_size_medium"
+                     />
             </LinearLayout>
 
-            <!-- Parrent -->
+            <!-- Parent Row -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -109,10 +110,9 @@
                     android:id="@+id/parent_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingStart="0dp"
-                    android:paddingEnd="@dimen/padding_medium"
                     android:text="@string/parent_label"
-                    android:textSize="@dimen/text_size_medium" />
+                    android:textSize="@dimen/text_size_medium"
+                    android:paddingEnd="8dp" />
 
                 <TextView
                     android:id="@+id/parent_value"
@@ -139,12 +139,15 @@
             android:orientation="horizontal"
             android:layout_marginTop="@dimen/padding_medium">
 
+
             <TextView
+                android:id="@+id/children_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="@string/children_label"
+
                 android:paddingStart="0dp"
                 android:paddingEnd="@dimen/padding_medium"
-                android:text="Children:"
                 android:textSize="@dimen/text_size_medium" />
         </LinearLayout>
     </LinearLayout> <!-- Header end -->

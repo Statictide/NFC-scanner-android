@@ -36,12 +36,6 @@ class HomeFragment : Fragment() {
 
     private lateinit var assignParentDialog: AlertDialog
 
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-
     override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
@@ -59,15 +53,18 @@ class HomeFragment : Fragment() {
 
         setupAssignParentDialog(root)
 
-
         // Handle data
         if (args.tagUid.isNotEmpty()) {
-            handleNfcTagUid(args.tagUid)
+            fetchAndShowEntityByTagUid(args.tagUid)
         }
 
         return root
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 
 
     private fun setupAssignParentDialog(view: View) {
@@ -105,7 +102,7 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun handleNfcTagUid(tagUid: String) {
+    private fun fetchAndShowEntityByTagUid(tagUid: String) {
         val call = ApiClient.apiService.getEntitiesByTagUid(tagUid)
 
         call.enqueue(object : Callback<EntityClosureDTO> {
@@ -120,8 +117,8 @@ class HomeFragment : Fragment() {
                     return
                 }
 
-                val entityClosure = response.body()
-                if (entityClosure == null) {
+                val body = response.body()
+                if (body == null) {
                     Toast.makeText(context, "Null", Toast.LENGTH_SHORT).show();
                     return
                 }
@@ -129,11 +126,11 @@ class HomeFragment : Fragment() {
                 // If assign in progress, assign entity to tag
                 (activity as MainActivity).assignParentOnEntityIdIsActive?.let {
                     assignParentDialog.dismiss()
-                    assignEntityToTag(it, entityClosure.entity.id)
+                    assignEntityToTag(it, body.entity.id)
                     return
                 }
 
-                homeViewModel.entityClosure.value = entityClosure
+                homeViewModel.entityClosure.value = body
             }
 
             override fun onFailure(call: Call<EntityClosureDTO>, t: Throwable) {

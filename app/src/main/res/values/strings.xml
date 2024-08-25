@@ -9,6 +9,7 @@
     <string name="tag_id_label">Tag ID:</string>
     <string name="name_label">Name:</string>
     <string name="parent_label">Parent:</string>
+    <string name="children_label">Children</string>
     <string name="image_label">Image:</string>
     <string name="na">N/A</string>
     <string name="assign_button">Assign to</string>
