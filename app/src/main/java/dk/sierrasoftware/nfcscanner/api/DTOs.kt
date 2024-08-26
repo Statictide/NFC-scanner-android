@@ -8,7 +8,11 @@ data class EntityDTO (val id: UInt, val tag_uid: String, val name: String, val p
     Parcelable
 
 @Parcelize
-data class EntityClosureDTO (val entity: EntityDTO, val parent: EntityDTO?, val children: List<EntityDTO>) :
+data class EntityClosureDTO (val id: UInt, val tag_uid: String, val name: String, val parent_id: UInt, val children: List<EntityClosureDTO>) :
+    Parcelable
+
+@Parcelize
+data class EnrichedEntityDTO (val entity: EntityDTO, val parent: EntityDTO?, val children: List<EntityDTO>) :
     Parcelable
 
 @Parcelize

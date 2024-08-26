@@ -13,7 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
 import dk.sierrasoftware.nfcscanner.MainActivity
 import dk.sierrasoftware.nfcscanner.api.ApiClient
-import dk.sierrasoftware.nfcscanner.api.EntityClosureDTO
+import dk.sierrasoftware.nfcscanner.api.EnrichedEntityDTO
 import dk.sierrasoftware.nfcscanner.api.PatchEntityDTO
 import dk.sierrasoftware.nfcscanner.databinding.FragmentHomeBinding
 import retrofit2.Call
@@ -85,7 +85,7 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun renderEntity(entityClosure: EntityClosureDTO?) {
+    private fun renderEntity(entityClosure: EnrichedEntityDTO?) {
         val entity = entityClosure?.entity
         binding.tagIdValue.text = entity?.tag_uid
         binding.nameValue.text = entity?.name
@@ -105,10 +105,10 @@ class HomeFragment : Fragment() {
     private fun fetchAndShowEntityByTagUid(tagUid: String) {
         val call = ApiClient.apiService.getEntitiesByTagUid(tagUid)
 
-        call.enqueue(object : Callback<EntityClosureDTO> {
+        call.enqueue(object : Callback<EnrichedEntityDTO> {
             override fun onResponse(
-                call: Call<EntityClosureDTO>,
-                response: Response<EntityClosureDTO>
+                call: Call<EnrichedEntityDTO>,
+                response: Response<EnrichedEntityDTO>
             ) {
                 if (!response.isSuccessful) {
                     val msg = String.format("Error: ${response.code()} ${response.message()}")
@@ -133,7 +133,7 @@ class HomeFragment : Fragment() {
                 homeViewModel.entityClosure.value = body
             }
 
-            override fun onFailure(call: Call<EntityClosureDTO>, t: Throwable) {
+            override fun onFailure(call: Call<EnrichedEntityDTO>, t: Throwable) {
                 // TODO: Add option to create new entity
                 Log.e("API_ERROR", "Failure: ${t.message}")
                 Toast.makeText(context, t.message, Toast.LENGTH_LONG).show()
@@ -152,8 +152,8 @@ class HomeFragment : Fragment() {
         val patchEntity = PatchEntityDTO(newParentId)
         val call = ApiClient.apiService.patchEntity(entryId, patchEntity)
 
-        call.enqueue(object : Callback<EntityClosureDTO> {
-            override fun onResponse(call: Call<EntityClosureDTO>, response: Response<EntityClosureDTO>) {
+        call.enqueue(object : Callback<EnrichedEntityDTO> {
+            override fun onResponse(call: Call<EnrichedEntityDTO>, response: Response<EnrichedEntityDTO>) {
                 if (!response.isSuccessful) {
                     // Handle error
                     val msg = String.format("Error: ${response.code()} ${response.message()}")
@@ -171,7 +171,7 @@ class HomeFragment : Fragment() {
                 homeViewModel.entityClosure.value = entityClosure
             }
 
-            override fun onFailure(call: Call<EntityClosureDTO>, t: Throwable) {
+            override fun onFailure(call: Call<EnrichedEntityDTO>, t: Throwable) {
                 // Handle failure
                 Log.e("API_ERROR", "Failure: ${t.message}")
                 Toast.makeText(context, t.message, Toast.LENGTH_LONG).show()

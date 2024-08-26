@@ -1,12 +1,9 @@
 package dk.sierrasoftware.nfcscanner.ui.home
 
-import android.os.Parcelable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import dk.sierrasoftware.nfcscanner.api.EntityClosureDTO
-import kotlinx.parcelize.Parcelize
-import java.util.Collections
+import dk.sierrasoftware.nfcscanner.api.EnrichedEntityDTO
 
 class HomeViewModel : ViewModel() {
 
@@ -14,7 +11,7 @@ class HomeViewModel : ViewModel() {
         value = "This is home Fragment"
     }
 
-    val entityClosure = MutableLiveData<EntityClosureDTO?>()
+    val entityClosure = MutableLiveData<EnrichedEntityDTO?>()
 
 
     val text: LiveData<String> = _text
