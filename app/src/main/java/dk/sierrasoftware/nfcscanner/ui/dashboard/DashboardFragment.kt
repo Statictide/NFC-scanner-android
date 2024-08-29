@@ -55,10 +55,10 @@ class DashboardFragment : Fragment() {
         // React to changes in model
         dashboardViewModel.entities.observe(viewLifecycleOwner) {
             entityAdapter = EntityAdapter(it.orEmpty())
-            binding.rvEntities.adapter = entityAdapter
+            binding.entities.adapter = entityAdapter
         }
 
-        binding.rvEntities.apply {
+        binding.entities.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = entityAdapter
         }

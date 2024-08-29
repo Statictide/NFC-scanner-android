@@ -24,11 +24,11 @@ class EntityAdapter(private val entities: List<EntityClosureDTO>) : RecyclerView
     override fun getItemCount(): Int = entities.size
 
     class EntityViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val tvEntityName: TextView = itemView.findViewById(R.id.tvEntityName)
-        private val rvChildEntities: RecyclerView = itemView.findViewById(R.id.rvChildEntities)
+        private val nameView: TextView = itemView.findViewById(R.id.name)
+        private val childrenView: RecyclerView = itemView.findViewById(R.id.children)
 
         fun bind(entity: EntityClosureDTO) {
-            tvEntityName.text = entity.name
+            nameView.text = entity.name
 
             // Set OnClickListener to show a Toast with the entity ID
             itemView.setOnClickListener {
@@ -36,11 +36,11 @@ class EntityAdapter(private val entities: List<EntityClosureDTO>) : RecyclerView
             }
 
             if (entity.children.isNotEmpty()) {
-                rvChildEntities.visibility = View.VISIBLE
-                rvChildEntities.layoutManager = LinearLayoutManager(itemView.context)
-                rvChildEntities.adapter = EntityChildAdapter(entity.children)
+                childrenView.visibility = View.VISIBLE
+                childrenView.layoutManager = LinearLayoutManager(itemView.context)
+                childrenView.adapter = EntityAdapter(entity.children)
             } else {
-                rvChildEntities.visibility = View.GONE
+                childrenView.visibility = View.GONE
             }
         }
     }

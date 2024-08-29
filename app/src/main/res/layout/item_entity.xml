@@ -7,16 +7,16 @@
     android:padding="8dp">
 
     <TextView
-        android:id="@+id/tvEntityName"
+        android:id="@+id/name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Entity Name Placeholder"
         android:textSize="18sp"/>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvChildEntities"
+        android:id="@+id/children"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/padding_large"
+        android:layout_marginStart="@dimen/padding_large"
         android:nestedScrollingEnabled="false"/>
 </LinearLayout>
