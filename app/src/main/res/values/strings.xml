@@ -13,4 +13,5 @@
     <string name="image_label">Image:</string>
     <string name="na">N/A</string>
     <string name="assign_button">Assign to</string>
+    <string name="title_entities">Entities</string>
 </resources>

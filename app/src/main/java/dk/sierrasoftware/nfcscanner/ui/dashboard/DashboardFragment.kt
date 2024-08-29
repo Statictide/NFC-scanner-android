@@ -26,7 +26,7 @@ class DashboardFragment : Fragment() {
 
     private lateinit var dashboardViewModel: DashboardViewModel;
 
-    private lateinit var entitiesAdapter: EntitiesAdapter
+    private lateinit var entityAdapter: EntityAdapter
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -50,16 +50,17 @@ class DashboardFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        entitiesAdapter = EntitiesAdapter(dashboardViewModel.entities.value.orEmpty()) // Initially empty list
+        entityAdapter = EntityAdapter(dashboardViewModel.entities.value.orEmpty()) // Initially empty list
 
+        // React to changes in model
         dashboardViewModel.entities.observe(viewLifecycleOwner) {
-            entitiesAdapter = EntitiesAdapter(it.orEmpty())
-            binding.recyclerViewEntities.adapter = entitiesAdapter
+            entityAdapter = EntityAdapter(it.orEmpty())
+            binding.rvEntities.adapter = entityAdapter
         }
 
-        binding.recyclerViewEntities.apply {
+        binding.rvEntities.apply {
             layoutManager = LinearLayoutManager(context)
-            adapter = entitiesAdapter
+            adapter = entityAdapter
         }
     }
 
