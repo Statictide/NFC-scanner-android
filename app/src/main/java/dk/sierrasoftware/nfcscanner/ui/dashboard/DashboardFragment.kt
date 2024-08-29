@@ -38,7 +38,6 @@ class DashboardFragment : Fragment() {
 
         _binding = FragmentDashboardBinding.inflate(inflater, container, false)
 
-
         setupRecyclerView()
 
         return binding.root

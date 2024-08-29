@@ -5,12 +5,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.LinearLayoutManager
 import dk.sierrasoftware.nfcscanner.MainActivity
 import dk.sierrasoftware.nfcscanner.api.ApiClient
 import dk.sierrasoftware.nfcscanner.api.EnrichedEntityDTO
@@ -19,7 +19,6 @@ import dk.sierrasoftware.nfcscanner.databinding.FragmentHomeBinding
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.util.Collections
 
 class HomeFragment : Fragment() {
 
@@ -32,6 +31,8 @@ class HomeFragment : Fragment() {
     private val args: HomeFragmentArgs by navArgs()
 
     private lateinit var homeViewModel: HomeViewModel;
+
+    private lateinit var entityAdapter: EntityAdapter
 
 
     private lateinit var assignParentDialog: AlertDialog
@@ -46,14 +47,36 @@ class HomeFragment : Fragment() {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
+        entityAdapter = EntityAdapter(homeViewModel.entityClosure.value?.children.orEmpty()) // Initially empty list
+
         // Bind view model
         homeViewModel.entityClosure.observe(viewLifecycleOwner) {
-            renderEntity(it)
+            // Handle null
+            if (it == null) {
+                binding.nameValue.text = "N/A"
+                binding.parentValue.text = "N/A"
+                binding.assignButton.isEnabled = false
+                binding.childrenRecyclerView.adapter = null
+                return@observe
+            }
+
+            // Handle it
+            binding.nameValue.text = it.entity.name
+            binding.parentValue.text = it.parent?.name
+            binding.assignButton.isEnabled = true
+            entityAdapter = EntityAdapter(it.children)
+            binding.childrenRecyclerView.adapter = EntityAdapter(it.children )
+
+        }
+
+        binding.childrenRecyclerView.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = entityAdapter
         }
 
         setupAssignParentDialog(root)
 
-        // Handle data
+        // Fetch entity
         if (args.tagUid.isNotEmpty()) {
             fetchAndShowEntityByTagUid(args.tagUid)
         }
@@ -82,23 +105,6 @@ class HomeFragment : Fragment() {
 
         binding.assignButton.setOnClickListener {
             showAssignParentPopup()
-        }
-    }
-
-    private fun renderEntity(entityClosure: EnrichedEntityDTO?) {
-        val entity = entityClosure?.entity
-        binding.tagIdValue.text = entity?.tag_uid
-        binding.nameValue.text = entity?.name
-        binding.parentValue.text = entityClosure?.parent?.name
-        binding.assignButton.isEnabled = entityClosure?.let { true } ?: false
-
-        for (child in entityClosure?.children ?: Collections.emptyList()) {
-            val textView = TextView(context)
-            textView.text = child.name
-            textView.setPadding(0, 10, 0, 10)  // Add padding if needed
-
-            // Add the TextView to the LinearLayout
-            binding.childrenLayout.addView(textView)
         }
     }
 

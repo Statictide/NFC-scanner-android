@@ -10,8 +10,7 @@
         android:id="@+id/name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Entity Name Placeholder"
-        android:textSize="18sp"/>
+        android:text="Entity Name Placeholder"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/children"
