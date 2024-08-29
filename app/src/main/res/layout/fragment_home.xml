@@ -110,7 +110,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:layout_marginTop="@dimen/padding_medium">
 
             <TextView
@@ -119,8 +119,6 @@
                 android:layout_height="wrap_content"
                 android:text="@string/children_label"
 
-                android:paddingStart="0dp"
-                android:paddingEnd="@dimen/padding_medium"
                 android:textSize="@dimen/text_size_medium" />
 
             <androidx.recyclerview.widget.RecyclerView

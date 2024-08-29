@@ -4,18 +4,40 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="8dp">
+    >
 
+    <!-- Parent Entity Name -->
     <TextView
         android:id="@+id/name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Entity Name Placeholder"/>
+        android:text="Entity Name Placeholder"
+        android:textSize="18sp"
+        android:layout_marginBottom="@dimen/padding_medium"
+        />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/children"
+    <!-- Container for the vertical line and child RecyclerView -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/padding_large"
-        android:nestedScrollingEnabled="false"/>
+        android:orientation="horizontal">
+
+        <!-- Vertical Line -->
+        <View
+            android:layout_width="2dp"
+            android:layout_height="match_parent"
+            android:background="?android:attr/dividerVertical"
+            android:layout_marginStart="@dimen/padding_small"
+            android:layout_marginEnd="@dimen/padding_small"
+            />
+
+        <!-- Child RecyclerView -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/children"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:nestedScrollingEnabled="false" />
+
+    </LinearLayout>
 </LinearLayout>
