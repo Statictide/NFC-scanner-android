@@ -13,9 +13,10 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import dk.sierrasoftware.nfcscanner.MainActivity
 import dk.sierrasoftware.nfcscanner.api.ApiClient
-import dk.sierrasoftware.nfcscanner.api.EnrichedEntityDTO
+import dk.sierrasoftware.nfcscanner.api.EntityClosureDTO
 import dk.sierrasoftware.nfcscanner.api.PatchEntityDTO
 import dk.sierrasoftware.nfcscanner.databinding.FragmentHomeBinding
+import dk.sierrasoftware.nfcscanner.ui.dashboard.EntityAdapter
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -61,8 +62,8 @@ class HomeFragment : Fragment() {
             }
 
             // Handle it
-            binding.nameValue.text = it.entity.name
-            binding.parentValue.text = it.parent?.name
+            binding.nameValue.text = it.name
+            binding.parentValue.text = it.parent_name
             binding.assignButton.isEnabled = true
             entityAdapter = EntityAdapter(it.children)
             binding.childrenRecyclerView.adapter = EntityAdapter(it.children )
@@ -111,10 +112,10 @@ class HomeFragment : Fragment() {
     private fun fetchAndShowEntityByTagUid(tagUid: String) {
         val call = ApiClient.apiService.getEntitiesByTagUid(tagUid)
 
-        call.enqueue(object : Callback<EnrichedEntityDTO> {
+        call.enqueue(object : Callback<EntityClosureDTO> {
             override fun onResponse(
-                call: Call<EnrichedEntityDTO>,
-                response: Response<EnrichedEntityDTO>
+                call: Call<EntityClosureDTO>,
+                response: Response<EntityClosureDTO>
             ) {
                 if (!response.isSuccessful) {
                     val msg = String.format("Error: ${response.code()} ${response.message()}")
@@ -132,14 +133,14 @@ class HomeFragment : Fragment() {
                 // If assign in progress, assign entity to tag
                 (activity as MainActivity).assignParentOnEntityIdIsActive?.let {
                     assignParentDialog.dismiss()
-                    assignEntityToTag(it, body.entity.id)
+                    assignEntityToTag(it, body.id)
                     return
                 }
 
                 homeViewModel.entityClosure.value = body
             }
 
-            override fun onFailure(call: Call<EnrichedEntityDTO>, t: Throwable) {
+            override fun onFailure(call: Call<EntityClosureDTO>, t: Throwable) {
                 // TODO: Add option to create new entity
                 Log.e("API_ERROR", "Failure: ${t.message}")
                 Toast.makeText(context, t.message, Toast.LENGTH_LONG).show()
@@ -149,7 +150,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun showAssignParentPopup() {
-        val entityId = homeViewModel.entityClosure.value!!.entity.id
+        val entityId = homeViewModel.entityClosure.value!!.id
         (activity as MainActivity).assignParentOnEntityIdIsActive = entityId;
         assignParentDialog.show()
     }
@@ -158,8 +159,8 @@ class HomeFragment : Fragment() {
         val patchEntity = PatchEntityDTO(newParentId)
         val call = ApiClient.apiService.patchEntity(entryId, patchEntity)
 
-        call.enqueue(object : Callback<EnrichedEntityDTO> {
-            override fun onResponse(call: Call<EnrichedEntityDTO>, response: Response<EnrichedEntityDTO>) {
+        call.enqueue(object : Callback<EntityClosureDTO> {
+            override fun onResponse(call: Call<EntityClosureDTO>, response: Response<EntityClosureDTO>) {
                 if (!response.isSuccessful) {
                     // Handle error
                     val msg = String.format("Error: ${response.code()} ${response.message()}")
@@ -177,7 +178,7 @@ class HomeFragment : Fragment() {
                 homeViewModel.entityClosure.value = entityClosure
             }
 
-            override fun onFailure(call: Call<EnrichedEntityDTO>, t: Throwable) {
+            override fun onFailure(call: Call<EntityClosureDTO>, t: Throwable) {
                 // Handle failure
                 Log.e("API_ERROR", "Failure: ${t.message}")
                 Toast.makeText(context, t.message, Toast.LENGTH_LONG).show()

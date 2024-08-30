@@ -7,6 +7,6 @@ import dk.sierrasoftware.nfcscanner.api.EntityClosureDTO
 
 class DashboardViewModel : ViewModel() {
     val entities = MutableLiveData<List<EntityClosureDTO>>().apply {
-        value = listOf(EntityClosureDTO(2u, "049F3972FE4A80", "Main entity 1", 1u, listOf()))
+        value = listOf(EntityClosureDTO(2u, "049F3972FE4A80", "Main entity 1", 1u, "parent_name", listOf()))
     }
 }

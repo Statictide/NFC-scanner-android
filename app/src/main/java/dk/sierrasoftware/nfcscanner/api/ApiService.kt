@@ -9,13 +9,14 @@ import retrofit2.http.Query
 
 interface ApiService {
     @GET("/api/v0/entities/by-tag")
-    fun getEntitiesByTagUid(@Query("tag_uid") tagUid: String): Call<EnrichedEntityDTO>
+    fun getEntitiesByTagUid(@Query("tag_uid") tagUid: String): Call<EntityClosureDTO>
 
     @GET("/api/v0/entities")
     fun getEntitiesByUser(@Query("user_id") userId: UInt): Call<List<EntityClosureDTO>>
 
+
     @PATCH("/api/v0/entities/{id}")
-    fun patchEntity(@Path("id") id: UInt, @Body entity: PatchEntityDTO): Call<EnrichedEntityDTO>
+    fun patchEntity(@Path("id") id: UInt, @Body entity: PatchEntityDTO): Call<EntityClosureDTO>
 }
 
 
