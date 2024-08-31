@@ -14,4 +14,6 @@
     <string name="na">N/A</string>
     <string name="assign_button">Assign to</string>
     <string name="title_entities">Entities</string>
+    <string name="name_hint">Input name</string>
+    <string name="parent_hint">None</string>
 </resources>

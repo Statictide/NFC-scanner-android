@@ -4,7 +4,10 @@ import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.OnFocusChangeListener
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
+import android.widget.TextView.OnEditorActionListener
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
@@ -13,6 +16,7 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import dk.sierrasoftware.nfcscanner.MainActivity
 import dk.sierrasoftware.nfcscanner.api.ApiClient
+import dk.sierrasoftware.nfcscanner.api.CreateEntityDTO
 import dk.sierrasoftware.nfcscanner.api.EntityClosureDTO
 import dk.sierrasoftware.nfcscanner.api.PatchEntityDTO
 import dk.sierrasoftware.nfcscanner.databinding.FragmentHomeBinding
@@ -54,20 +58,36 @@ class HomeFragment : Fragment() {
         homeViewModel.entityClosure.observe(viewLifecycleOwner) {
             // Handle null
             if (it == null) {
-                binding.nameValue.text = "N/A"
-                binding.parentValue.text = "N/A"
+                binding.nameView.isEnabled = false
+                binding.parentView.isEnabled = false
                 binding.assignButton.isEnabled = false
-                binding.childrenRecyclerView.adapter = null
+                binding.childrenRecyclerView.isEnabled = false
                 return@observe
             }
 
+
+            binding.nameView.isEnabled = true
+            binding.parentView.isEnabled = true
+            binding.assignButton.isEnabled = true
+            binding.childrenRecyclerView.isEnabled = true
+
             // Handle it
-            binding.nameValue.text = it.name
-            binding.parentValue.text = it.parent_name
+            binding.nameView.setText(it.name)
+            binding.parentView.text = it.parent_name
             binding.assignButton.isEnabled = true
             entityAdapter = EntityAdapter(it.children)
             binding.childrenRecyclerView.adapter = EntityAdapter(it.children )
 
+            // Save name on update
+            binding.nameView.setOnEditorActionListener { view, actionId, event ->
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    val name = view.getText().toString()
+                    saveName(homeViewModel.entityClosure.value!!, name)
+                    view.clearFocus()
+                }
+
+                false
+            }
         }
 
         binding.childrenRecyclerView.apply {
@@ -110,7 +130,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun fetchAndShowEntityByTagUid(tagUid: String) {
-        val call = ApiClient.apiService.getEntitiesByTagUid(tagUid)
+        val call = ApiClient.apiService.getEntitiesByTagUid(tagUid, true)
 
         call.enqueue(object : Callback<EntityClosureDTO> {
             override fun onResponse(
@@ -149,6 +169,34 @@ class HomeFragment : Fragment() {
         })
     }
 
+
+    private fun saveName(entity: EntityClosureDTO, newName: String) {
+        val createEntity = CreateEntityDTO(entity.tag_uid, newName, entity.parent_id)
+        val call = ApiClient.apiService.updateEntity(entity.id, createEntity)
+
+        call.enqueue(object : Callback<Void> {
+            override fun onResponse(
+                call: Call<Void>,
+                response: Response<Void>
+            ) {
+                if (!response.isSuccessful) {
+                    val msg = String.format("Error: ${response.code()} ${response.message()}")
+                    Log.e("API_ERROR", "Failure: ${msg}")
+                    Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
+                    return
+                }
+
+                Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show();
+            }
+
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                Log.e("API_ERROR", "Failure: ${t.message}")
+                Toast.makeText(context, t.message, Toast.LENGTH_LONG).show()
+                return
+            }
+        })
+    }
+
     private fun showAssignParentPopup() {
         val entityId = homeViewModel.entityClosure.value!!.id
         (activity as MainActivity).assignParentOnEntityIdIsActive = entityId;
@@ -156,7 +204,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun assignEntityToTag(entryId: UInt, newParentId: UInt) {
-        val patchEntity = PatchEntityDTO(newParentId)
+        val patchEntity = PatchEntityDTO(newParentId)z
         val call = ApiClient.apiService.patchEntity(entryId, patchEntity)
 
         call.enqueue(object : Callback<EntityClosureDTO> {
