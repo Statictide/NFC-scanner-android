@@ -81,7 +81,7 @@ class DashboardFragment : Fragment() {
 
                 val body = response.body()
                 if (body == null) {
-                    Toast.makeText(context, "Null", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Response body was null", Toast.LENGTH_SHORT).show();
                     return
                 }
 

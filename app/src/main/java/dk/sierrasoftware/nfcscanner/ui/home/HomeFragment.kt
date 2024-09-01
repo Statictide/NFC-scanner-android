@@ -4,10 +4,8 @@ import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.OnFocusChangeListener
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
-import android.widget.TextView.OnEditorActionListener
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
@@ -18,6 +16,7 @@ import dk.sierrasoftware.nfcscanner.MainActivity
 import dk.sierrasoftware.nfcscanner.api.ApiClient
 import dk.sierrasoftware.nfcscanner.api.CreateEntityDTO
 import dk.sierrasoftware.nfcscanner.api.EntityClosureDTO
+import dk.sierrasoftware.nfcscanner.api.MaybeInt
 import dk.sierrasoftware.nfcscanner.api.PatchEntityDTO
 import dk.sierrasoftware.nfcscanner.databinding.FragmentHomeBinding
 import dk.sierrasoftware.nfcscanner.ui.dashboard.EntityAdapter
@@ -146,14 +145,14 @@ class HomeFragment : Fragment() {
 
                 val body = response.body()
                 if (body == null) {
-                    Toast.makeText(context, "Null", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Response body was empty", Toast.LENGTH_SHORT).show();
                     return
                 }
 
                 // If assign in progress, assign entity to tag
                 (activity as MainActivity).assignParentOnEntityIdIsActive?.let {
                     assignParentDialog.dismiss()
-                    assignEntityToTag(it, body.id)
+                    assignEntityToTag(it, body.id.toInt())
                     return
                 }
 
@@ -171,13 +170,13 @@ class HomeFragment : Fragment() {
 
 
     private fun saveName(entity: EntityClosureDTO, newName: String) {
-        val createEntity = CreateEntityDTO(entity.tag_uid, newName, entity.parent_id)
+        val createEntity = CreateEntityDTO(entity.tag_uid, newName, null)
         val call = ApiClient.apiService.updateEntity(entity.id, createEntity)
 
-        call.enqueue(object : Callback<Void> {
+        call.enqueue(object : Callback<EntityClosureDTO> {
             override fun onResponse(
-                call: Call<Void>,
-                response: Response<Void>
+                call: Call<EntityClosureDTO>,
+                response: Response<EntityClosureDTO>
             ) {
                 if (!response.isSuccessful) {
                     val msg = String.format("Error: ${response.code()} ${response.message()}")
@@ -186,10 +185,17 @@ class HomeFragment : Fragment() {
                     return
                 }
 
-                Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show();
+                val body = response.body()
+                if (body == null) {
+                    Toast.makeText(context, "Response body was null", Toast.LENGTH_SHORT).show();
+                    return
+                }
+
+                Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show()
+                homeViewModel.entityClosure.value = body
             }
 
-            override fun onFailure(call: Call<Void>, t: Throwable) {
+            override fun onFailure(call: Call<EntityClosureDTO>, t: Throwable) {
                 Log.e("API_ERROR", "Failure: ${t.message}")
                 Toast.makeText(context, t.message, Toast.LENGTH_LONG).show()
                 return
@@ -203,8 +209,8 @@ class HomeFragment : Fragment() {
         assignParentDialog.show()
     }
 
-    private fun assignEntityToTag(entryId: UInt, newParentId: UInt) {
-        val patchEntity = PatchEntityDTO(newParentId)z
+    private fun assignEntityToTag(entryId: UInt, newParentId: Int) {
+        val patchEntity = PatchEntityDTO(MaybeInt(newParentId))
         val call = ApiClient.apiService.patchEntity(entryId, patchEntity)
 
         call.enqueue(object : Callback<EntityClosureDTO> {
@@ -219,7 +225,7 @@ class HomeFragment : Fragment() {
 
                 val entityClosure = response.body()
                 if (entityClosure == null) {
-                    Toast.makeText(context, "Null", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Response body was null", Toast.LENGTH_SHORT).show();
                     return
                 }
 

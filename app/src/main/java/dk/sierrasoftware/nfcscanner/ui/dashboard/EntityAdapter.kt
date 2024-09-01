@@ -34,7 +34,6 @@ class EntityAdapter(private val entities: List<EntityClosureDTO>) : RecyclerView
 
             // Set OnClickListener to show a Toast with the entity ID
             itemView.setOnClickListener {
-                Toast.makeText(itemView.context, "Entity ID: ${entity.id}", Toast.LENGTH_SHORT).show()
                 val actionNavigationHome = MobileNavigationDirections.actionNavigationHomeWithTagUid(entity.tag_uid, 0)
                 val navController = Navigation.findNavController(itemView)
                 navController.navigate(actionNavigationHome)
