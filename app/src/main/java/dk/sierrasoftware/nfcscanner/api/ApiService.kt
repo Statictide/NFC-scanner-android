@@ -4,6 +4,7 @@ import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.PATCH
+import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -20,6 +21,9 @@ interface ApiService {
 
     @PATCH("/api/v0/entities/{id}")
     fun patchEntity(@Path("id") id: UInt, @Body entity: PatchEntityDTO): Call<EntityClosureDTO>
+
+    @POST("/api/v0/check-for-update")
+    fun checkForUpdate(@Body entity: CheckForUpdateDTO): Call<CheckForUpdateResponseDTO>
 }
 
 

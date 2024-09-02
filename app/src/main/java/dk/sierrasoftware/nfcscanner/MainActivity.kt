@@ -1,19 +1,30 @@
 package dk.sierrasoftware.nfcscanner
 
+import android.app.AlertDialog
 import android.app.PendingIntent
 import android.content.Intent
 import android.content.IntentFilter
 import android.nfc.NfcAdapter
 import android.nfc.Tag
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import dk.sierrasoftware.nfcscanner.api.ApiClient.apiService
+import dk.sierrasoftware.nfcscanner.api.CheckForUpdateDTO
+import dk.sierrasoftware.nfcscanner.api.CheckForUpdateResponseDTO
+import dk.sierrasoftware.nfcscanner.api.EntityClosureDTO
 import dk.sierrasoftware.nfcscanner.databinding.ActivityMainBinding
+import kotlinx.coroutines.launch
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 
 class MainActivity : AppCompatActivity() {
@@ -45,6 +56,11 @@ class MainActivity : AppCompatActivity() {
 
         // NFC
         setupNFC()
+
+        // Call the check-for-update endpoint
+        lifecycleScope.launch {
+            checkForUpdate()
+        }
     }
 
     private fun setupNFC() {
@@ -100,4 +116,45 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    private fun checkForUpdate() {
+        val currentVersion = "v0.0.0"
+        val call = apiService.checkForUpdate(CheckForUpdateDTO(currentVersion))
+        call.enqueue(object : Callback<CheckForUpdateResponseDTO> {
+            override fun onResponse(
+                call: Call<CheckForUpdateResponseDTO>,
+                response: Response<CheckForUpdateResponseDTO>
+            ) {
+                if (!response.isSuccessful) {
+                    val msg = String.format("Error: ${response.code()} ${response.message()}")
+                    Log.e("API_ERROR", "Failure: ${msg}")
+                    Toast.makeText(this@MainActivity, msg, Toast.LENGTH_LONG).show();
+                    return
+                }
+
+                val responseBody = response.body()!!
+
+                if (responseBody.update_required) {
+                    AlertDialog.Builder(this@MainActivity)
+                    .setTitle("Update Required")
+                    .setMessage(responseBody.message ?: "Please update the app to the latest version")
+                    .setPositiveButton("Update") { _, _ ->
+                        // Redirect to the Play Store or any URL
+                        // val intent = Intent(Intent.ACTION_VIEW, Uri.parse("your_play_store_url"))
+                        // startActivity(intent)
+                    }
+                    .setNegativeButton("Cancel") { dialog, _ ->
+                        dialog.dismiss()
+                        finish() // Optionally, close the app if the update is mandatory
+                    }
+                    .setCancelable(false)
+                    .show()
+                }
+            }
+
+            override fun onFailure(call: Call<CheckForUpdateResponseDTO>, t: Throwable) {
+                Log.e("API_ERROR", "Failure: ${t.message}")
+                return
+            }
+        })
+    }
 }

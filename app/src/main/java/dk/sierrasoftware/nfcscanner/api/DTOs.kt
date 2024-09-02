@@ -22,3 +22,12 @@ data class CreateEntityDTO ( val tag_uid: String, val name: String, val parent_i
 @Parcelize
 data class MaybeInt(val value: Int?) :
     Parcelable
+
+@Parcelize
+data class CheckForUpdateDTO(val version: String, val platform: String = "Android") :
+    Parcelable
+
+@Parcelize
+data class CheckForUpdateResponseDTO(val update_required: Boolean, val latestVersion: String, val message: String?) :
+    Parcelable
+
