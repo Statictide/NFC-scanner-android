@@ -28,6 +28,6 @@ data class CheckForUpdateDTO(val version: String, val platform: String = "Androi
     Parcelable
 
 @Parcelize
-data class CheckForUpdateResponseDTO(val update_required: Boolean, val latestVersion: String, val message: String?) :
+data class CheckForUpdateResponseDTO(val update_required: Boolean, val latestVersion: String?, val message: String?) :
     Parcelable
 

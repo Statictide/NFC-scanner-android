@@ -118,7 +118,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun checkForUpdate() {
         val versionName = getPackageManager().getPackageInfo(getPackageName(), 0).versionName
-        val semverRegex = "^([0-9]+)\\.([0-9]+)\\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?(?:\\+[0-9A-Za-z-]+)?\$"
+        val semverRegex = Regex("^([0-9]+)\\.([0-9]+)\\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?(?:\\+[0-9A-Za-z-]+)?\$") // matches 1.2.3-alpha.something+meta-data
+        Log.e("Version does not follow semver", "Version: ${versionName}")
         assert(versionName.contains(semverRegex))
 
         val call = apiService.checkForUpdate(CheckForUpdateDTO(versionName))
