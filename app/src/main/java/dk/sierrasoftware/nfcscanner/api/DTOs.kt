@@ -12,7 +12,7 @@ data class EntityClosureDTO (val id: UInt, val tag_uid: String, val name: String
     Parcelable
 
 @Parcelize
-data class PatchEntityDTO ( val parent_id: MaybeInt?) :
+data class PatchEntityDTO (val tag_uid: String? = null, val name: String? = null, val parent_id: MaybeInt? = null) :
     Parcelable
 
 @Parcelize

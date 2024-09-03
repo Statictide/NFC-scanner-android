@@ -13,37 +13,39 @@
     <LinearLayout
         android:id="@+id/header"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintTop_toTopOf="parent">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <!-- Title -->
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_gravity="center_horizontal"
+            android:paddingBottom="@dimen/padding_large"
+            android:text="@string/title_scan_nfc"
+            android:textSize="@dimen/text_size_large"
+            android:textStyle="bold" />
 
+        <!-- Instructions -->
+        <TextView
+            android:id="@+id/instructions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:paddingBottom="32dp"
+            android:text="@string/instructions_scan_nfc"
+            android:textSize="@dimen/text_size_small" />
+    </LinearLayout>
 
-            <!-- Title -->
-            <TextView
-                android:id="@+id/title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:paddingBottom="@dimen/padding_large"
-                android:text="@string/title_scan_nfc"
-                android:textSize="@dimen/text_size_large"
-                android:textStyle="bold" />
+    <LinearLayout
+        android:id="@+id/entity_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@id/header">
 
-            <!-- Instructions -->
-            <TextView
-                android:id="@+id/instructions"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:paddingBottom="32dp"
-                android:text="@string/instructions_scan_nfc"
-                android:textSize="@dimen/text_size_small" />
-        </LinearLayout>
 
         <!-- Entity info -->
         <LinearLayout
@@ -99,56 +101,53 @@
                     android:hint="@string/parent_hint"
 
                     android:textSize="@dimen/text_size_medium" />
+
+                <Button
+                    android:id="@+id/delete_parent_button"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="@dimen/padding_medium"
+                    android:layout_marginEnd="0dp"
+                    android:layout_marginVertical="0dp"
+                    android:padding="0dp"
+                    android:text="x">
+
+                </Button>
             </LinearLayout>
-        </LinearLayout>
 
 
-        <!--
-        <ImageView
-            android:id="@+id/tag_image"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:contentDescription="@string/image_label"
-            android:visibility="gone" />
-        -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/padding_medium"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/children_label"
+            <!--
+            <ImageView
+                android:id="@+id/tag_image"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/children_label"
-
-                android:textSize="@dimen/text_size_medium" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/children_recycler_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:contentDescription="@string/image_label"
+                android:visibility="gone" />
+            -->
         </LinearLayout>
-    </LinearLayout> <!-- Header end -->
 
-
-    <!-- Assign Button with api call. Constrain to bottom-->
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/assign_button"
-        app:layout_constraintTop_toBottomOf="@+id/header"
-        tools:layout_editor_absoluteX="16dp">
-
-
+        <!-- Entity children -->
         <LinearLayout
-            android:id="@+id/childrenLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"></LinearLayout>
-    </ScrollView>
+                android:id="@+id/children_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/padding_medium"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/children_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/children_label"
+
+                    android:textSize="@dimen/text_size_medium" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/children_recycler_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout> <!-- entity children -->
+    </LinearLayout> <!-- Entity group -->
 
     <Button
         android:id="@+id/assign_button"
@@ -156,7 +155,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:enabled="false"
-        android:onClick="assignEntityTo"
         android:padding="@dimen/padding_medium"
         android:text="@string/assign_button"
         app:layout_constraintBottom_toBottomOf="parent"

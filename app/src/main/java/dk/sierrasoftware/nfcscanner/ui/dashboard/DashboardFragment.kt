@@ -79,11 +79,7 @@ class DashboardFragment : Fragment() {
                     return
                 }
 
-                val body = response.body()
-                if (body == null) {
-                    Toast.makeText(context, "Response body was null", Toast.LENGTH_SHORT).show();
-                    return
-                }
+                val body = response.body()!!
 
                 dashboardViewModel.entities.value = body
             }

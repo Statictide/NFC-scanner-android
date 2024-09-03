@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:text="@string/title_entities"
         android:textSize="24sp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="@dimen/padding_medium"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -21,7 +21,7 @@
         android:id="@+id/entities"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:padding="8dp"
+        android:padding="@dimen/padding_medium"
         android:clipToPadding="false"
         app:layout_constraintTop_toBottomOf="@id/text_view_title"
         app:layout_constraintBottom_toBottomOf="parent"

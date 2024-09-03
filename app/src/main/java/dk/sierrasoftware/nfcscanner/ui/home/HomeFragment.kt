@@ -14,7 +14,6 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import dk.sierrasoftware.nfcscanner.MainActivity
 import dk.sierrasoftware.nfcscanner.api.ApiClient
-import dk.sierrasoftware.nfcscanner.api.CreateEntityDTO
 import dk.sierrasoftware.nfcscanner.api.EntityClosureDTO
 import dk.sierrasoftware.nfcscanner.api.MaybeInt
 import dk.sierrasoftware.nfcscanner.api.PatchEntityDTO
@@ -57,18 +56,11 @@ class HomeFragment : Fragment() {
         homeViewModel.entityClosure.observe(viewLifecycleOwner) {
             // Handle null
             if (it == null) {
-                binding.nameView.isEnabled = false
-                binding.parentView.isEnabled = false
-                binding.assignButton.isEnabled = false
-                binding.childrenRecyclerView.isEnabled = false
+                binding.entityGroup.isEnabled = false
                 return@observe
             }
 
-
-            binding.nameView.isEnabled = true
-            binding.parentView.isEnabled = true
-            binding.assignButton.isEnabled = true
-            binding.childrenRecyclerView.isEnabled = true
+            binding.entityGroup.isEnabled = true
 
             // Handle it
             binding.nameView.setText(it.name)
@@ -84,8 +76,11 @@ class HomeFragment : Fragment() {
                     saveName(homeViewModel.entityClosure.value!!, name)
                     view.clearFocus()
                 }
-
                 false
+            }
+
+            binding.deleteParentButton.setOnClickListener { view ->
+                removeParent(homeViewModel.entityClosure.value!!)
             }
         }
 
@@ -143,11 +138,7 @@ class HomeFragment : Fragment() {
                     return
                 }
 
-                val body = response.body()
-                if (body == null) {
-                    Toast.makeText(context, "Response body was empty", Toast.LENGTH_SHORT).show();
-                    return
-                }
+                val body = response.body()!!
 
                 // If assign in progress, assign entity to tag
                 (activity as MainActivity).assignParentOnEntityIdIsActive?.let {
@@ -170,8 +161,8 @@ class HomeFragment : Fragment() {
 
 
     private fun saveName(entity: EntityClosureDTO, newName: String) {
-        val createEntity = CreateEntityDTO(entity.tag_uid, newName, null)
-        val call = ApiClient.apiService.updateEntity(entity.id, createEntity)
+        val patch = PatchEntityDTO(name = newName)
+        val call = ApiClient.apiService.patchEntity(entity.id, patch)
 
         call.enqueue(object : Callback<EntityClosureDTO> {
             override fun onResponse(
@@ -185,11 +176,37 @@ class HomeFragment : Fragment() {
                     return
                 }
 
-                val body = response.body()
-                if (body == null) {
-                    Toast.makeText(context, "Response body was null", Toast.LENGTH_SHORT).show();
+                val body = response.body()!!
+
+                Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show()
+                homeViewModel.entityClosure.value = body
+            }
+
+            override fun onFailure(call: Call<EntityClosureDTO>, t: Throwable) {
+                Log.e("API_ERROR", "Failure: ${t.message}")
+                Toast.makeText(context, t.message, Toast.LENGTH_LONG).show()
+                return
+            }
+        })
+    }
+
+    private fun removeParent(entity: EntityClosureDTO) {
+        val patch = PatchEntityDTO(parent_id = MaybeInt(null))
+        val call = ApiClient.apiService.patchEntity(entity.id, patch)
+
+        call.enqueue(object : Callback<EntityClosureDTO> {
+            override fun onResponse(
+                call: Call<EntityClosureDTO>,
+                response: Response<EntityClosureDTO>
+            ) {
+                if (!response.isSuccessful) {
+                    val msg = String.format("Error: ${response.code()} ${response.message()}")
+                    Log.e("API_ERROR", "Failure: ${msg}")
+                    Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
                     return
                 }
+
+                val body = response.body()!!
 
                 Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show()
                 homeViewModel.entityClosure.value = body
@@ -210,7 +227,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun assignEntityToTag(entryId: UInt, newParentId: Int) {
-        val patchEntity = PatchEntityDTO(MaybeInt(newParentId))
+        val patchEntity = PatchEntityDTO(parent_id = MaybeInt(newParentId))
         val call = ApiClient.apiService.patchEntity(entryId, patchEntity)
 
         call.enqueue(object : Callback<EntityClosureDTO> {
@@ -223,13 +240,7 @@ class HomeFragment : Fragment() {
                     return
                 }
 
-                val entityClosure = response.body()
-                if (entityClosure == null) {
-                    Toast.makeText(context, "Response body was null", Toast.LENGTH_SHORT).show();
-                    return
-                }
-
-                homeViewModel.entityClosure.value = entityClosure
+                homeViewModel.entityClosure.value = response.body()!!
             }
 
             override fun onFailure(call: Call<EntityClosureDTO>, t: Throwable) {
