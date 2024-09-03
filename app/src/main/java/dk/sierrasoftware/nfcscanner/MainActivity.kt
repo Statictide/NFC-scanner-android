@@ -117,8 +117,11 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun checkForUpdate() {
-        val currentVersion = "v0.0.0"
-        val call = apiService.checkForUpdate(CheckForUpdateDTO(currentVersion))
+        val versionName = getPackageManager().getPackageInfo(getPackageName(), 0).versionName
+        val semverRegex = "^([0-9]+)\\.([0-9]+)\\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?(?:\\+[0-9A-Za-z-]+)?\$"
+        assert(versionName.contains(semverRegex))
+
+        val call = apiService.checkForUpdate(CheckForUpdateDTO(versionName))
         call.enqueue(object : Callback<CheckForUpdateResponseDTO> {
             override fun onResponse(
                 call: Call<CheckForUpdateResponseDTO>,
