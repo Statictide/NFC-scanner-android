@@ -139,23 +139,30 @@ class MainActivity : AppCompatActivity() {
 
                 val body = response.body()!!
 
-                if (body.update_required || body.update_recomended == true) {
+                if (body.update_mandatory || body.update_recommended == true) {
                     AlertDialog.Builder(this@MainActivity)
-                    .setTitle("Update Required")
+                        // "Update available", or "Update mandatory"
+                    .setTitle(body.title ?: "Update ${if (body.update_mandatory) "mandatory" else "available"}")
                     .setMessage(body.message ?: "Please update the app to the latest version")
                     .setPositiveButton("Ok") { _, _ ->
-                        // Redirect to the Play Store or any URL
-                        // val intent = Intent(Intent.ACTION_VIEW, Uri.parse("www.example.com/nfc-scanner"))
-                        // startActivity(intent)
+                        // Go to url
+                        body.update_url?.let {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(it))
+                            startActivity(intent)
+                        }
+
+                        // Close the app if the update is mandatory
+                        if (body.update_mandatory) {
+                            finish()
+                        }
                     }
                     .setNegativeButton("Cancel") { dialog, _ ->
-                        dialog.dismiss()
-                        if (body.update_required) {
-                            // Optionally, close the app if the update is mandatory
+                        dialog.cancel()
+                        if (body.update_mandatory) {
+                            finish()
                         }
-                        finish()
                     }
-                    .setCancelable(!body.update_required)
+                    .setCancelable(!body.update_mandatory)
                     .show()
                 }
             }
