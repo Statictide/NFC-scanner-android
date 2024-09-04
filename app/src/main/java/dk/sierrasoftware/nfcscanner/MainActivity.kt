@@ -4,10 +4,14 @@ import android.app.AlertDialog
 import android.app.PendingIntent
 import android.content.Intent
 import android.content.IntentFilter
+import android.net.Uri
 import android.nfc.NfcAdapter
 import android.nfc.Tag
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -19,7 +23,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import dk.sierrasoftware.nfcscanner.api.ApiClient.apiService
 import dk.sierrasoftware.nfcscanner.api.CheckForUpdateDTO
 import dk.sierrasoftware.nfcscanner.api.CheckForUpdateResponseDTO
-import dk.sierrasoftware.nfcscanner.api.EntityClosureDTO
 import dk.sierrasoftware.nfcscanner.databinding.ActivityMainBinding
 import kotlinx.coroutines.launch
 import retrofit2.Call
@@ -57,7 +60,7 @@ class MainActivity : AppCompatActivity() {
         // NFC
         setupNFC()
 
-        // Call the check-for-update endpoint
+        // Call the check-for-update endpoint on startup
         lifecycleScope.launch {
             checkForUpdate()
         }
@@ -115,12 +118,11 @@ class MainActivity : AppCompatActivity() {
         return sb.toString()
     }
 
-
+    // Show popup if the app needs an update.
     private fun checkForUpdate() {
-        val versionName = getPackageManager().getPackageInfo(getPackageName(), 0).versionName
-        val semverRegex = Regex("^([0-9]+)\\.([0-9]+)\\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?(?:\\+[0-9A-Za-z-]+)?\$") // matches 1.2.3-alpha.something+meta-data
-        Log.e("Version does not follow semver", "Version: ${versionName}")
-        assert(versionName.contains(semverRegex))
+        val versionName = packageManager.getPackageInfo(packageName, 0).versionName
+        // Check format is "vX.Y.Z-alpha.1+build.1234"
+        assert(versionName.contains(Regex("^([0-9]+)\\.([0-9]+)\\.([0-9]+)$")))
 
         val call = apiService.checkForUpdate(CheckForUpdateDTO(versionName))
         call.enqueue(object : Callback<CheckForUpdateResponseDTO> {
@@ -135,22 +137,25 @@ class MainActivity : AppCompatActivity() {
                     return
                 }
 
-                val responseBody = response.body()!!
+                val body = response.body()!!
 
-                if (responseBody.update_required) {
+                if (body.update_required || body.update_recomended == true) {
                     AlertDialog.Builder(this@MainActivity)
                     .setTitle("Update Required")
-                    .setMessage(responseBody.message ?: "Please update the app to the latest version")
-                    .setPositiveButton("Update") { _, _ ->
+                    .setMessage(body.message ?: "Please update the app to the latest version")
+                    .setPositiveButton("Ok") { _, _ ->
                         // Redirect to the Play Store or any URL
-                        // val intent = Intent(Intent.ACTION_VIEW, Uri.parse("your_play_store_url"))
+                        // val intent = Intent(Intent.ACTION_VIEW, Uri.parse("www.example.com/nfc-scanner"))
                         // startActivity(intent)
                     }
                     .setNegativeButton("Cancel") { dialog, _ ->
                         dialog.dismiss()
-                        finish() // Optionally, close the app if the update is mandatory
+                        if (body.update_required) {
+                            // Optionally, close the app if the update is mandatory
+                        }
+                        finish()
                     }
-                    .setCancelable(false)
+                    .setCancelable(!body.update_required)
                     .show()
                 }
             }
@@ -160,5 +165,28 @@ class MainActivity : AppCompatActivity() {
                 return
             }
         })
+    }
+
+
+    // Menu
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        val inflater: MenuInflater = menuInflater
+        inflater.inflate(R.menu.main_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // Handle item selection.
+        return when (item.itemId) {
+            R.id.action_create_item -> {
+                Toast.makeText(this, "Todo create", Toast.LENGTH_LONG)
+                true
+            }
+            R.id.action_reset_tag -> {
+                Toast.makeText(this, "Todo reset", Toast.LENGTH_LONG)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 }
