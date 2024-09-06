@@ -23,6 +23,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import dk.sierrasoftware.nfcscanner.api.ApiClient.apiService
 import dk.sierrasoftware.nfcscanner.api.CheckForUpdateDTO
 import dk.sierrasoftware.nfcscanner.api.CheckForUpdateResponseDTO
+import dk.sierrasoftware.nfcscanner.api.CreateEntityDTO
+import dk.sierrasoftware.nfcscanner.api.EntityClient
 import dk.sierrasoftware.nfcscanner.databinding.ActivityMainBinding
 import kotlinx.coroutines.launch
 import retrofit2.Call
@@ -187,6 +189,9 @@ class MainActivity : AppCompatActivity() {
         return when (item.itemId) {
             R.id.action_create_item -> {
                 Toast.makeText(this, "Todo create", Toast.LENGTH_LONG)
+                lifecycleScope.launch {
+                    extracted()
+                }
                 true
             }
             R.id.action_reset_tag -> {
@@ -194,6 +199,15 @@ class MainActivity : AppCompatActivity() {
                 true
             }
             else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private suspend fun extracted() {
+        val entity = CreateEntityDTO(null, "New entity", null);
+        EntityClient.client.createEntity(entity).onSuccess {
+
+        }.onFailure {
+
         }
     }
 }

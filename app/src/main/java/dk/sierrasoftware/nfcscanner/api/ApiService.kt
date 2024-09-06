@@ -17,6 +17,9 @@ interface ApiService {
     @GET("/api/v0/entities")
     suspend fun getEntitiesByUser(@Query("user_id") userId: UInt): Response<List<EntityClosureDTO>>
 
+    @POST("/api/v0/entities")
+    suspend fun createEntity(@Body entity: CreateEntityDTO): Response<EntityClosureDTO>
+
     @PUT("/api/v0/entities/{id}")
     fun updateEntity(@Path("id") id: UInt, @Body entity: CreateEntityDTO): Call<EntityClosureDTO>
 

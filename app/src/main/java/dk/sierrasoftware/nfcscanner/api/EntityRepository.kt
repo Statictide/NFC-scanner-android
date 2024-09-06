@@ -51,4 +51,18 @@ class EntityRepository(private val apiService: ApiService) {
             Result.failure(e)
         }
     }
+
+    suspend fun createEntity(entity: CreateEntityDTO): Result<EntityClosureDTO> {
+        return try {
+            val response = apiService.createEntity(entity)
+            if (response.isSuccessful) {
+                Result.success(response.body()!!)
+            } else {
+                Log.e("API_ERROR", "Failure: ${response.message()}");
+                Result.failure(Exception("API error: ${response.code()} ${response.message()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }
