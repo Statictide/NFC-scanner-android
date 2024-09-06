@@ -8,24 +8,20 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import dk.sierrasoftware.nfcscanner.api.ApiClient
-import dk.sierrasoftware.nfcscanner.api.EntityClosureDTO
+import dk.sierrasoftware.nfcscanner.api.EntityClient
 import dk.sierrasoftware.nfcscanner.databinding.FragmentDashboardBinding
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import kotlinx.coroutines.launch
 
 class DashboardFragment : Fragment() {
 
     private var _binding: FragmentDashboardBinding? = null
 
-    // This property is only valid between onCreateView and
-    // onDestroyView.
+    // This property is only valid between onCreateView and onDestroyView.
     private val binding get() = _binding!!
 
     private lateinit var dashboardViewModel: DashboardViewModel;
-
     private lateinit var entityAdapter: EntityAdapter
 
     override fun onCreateView(
@@ -34,7 +30,9 @@ class DashboardFragment : Fragment() {
             savedInstanceState: Bundle?
     ): View {
         dashboardViewModel = ViewModelProvider(this)[DashboardViewModel::class.java]
-        fetchAndShowEntities();
+        lifecycleScope.launch {
+            dashboardViewModel.fetchEntities()
+        }
 
         _binding = FragmentDashboardBinding.inflate(inflater, container, false)
 
@@ -63,33 +61,4 @@ class DashboardFragment : Fragment() {
         }
     }
 
-
-    private fun fetchAndShowEntities() {
-        val call = ApiClient.apiService.getEntitiesByUser(1u)
-
-        call.enqueue(object : Callback<List<EntityClosureDTO>> {
-            override fun onResponse(
-                call: Call<List<EntityClosureDTO>>,
-                response: Response<List<EntityClosureDTO>>
-            ) {
-                if (!response.isSuccessful) {
-                    val msg = String.format("Error: ${response.code()} ${response.message()}")
-                    Log.e("API_ERROR", "Failure: ${msg}")
-                    Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
-                    return
-                }
-
-                val body = response.body()!!
-
-                dashboardViewModel.entities.value = body
-            }
-
-            override fun onFailure(call: Call<List<EntityClosureDTO>>, t: Throwable) {
-                // TODO: Add option to create new entity
-                Log.e("API_ERROR", "Failure: ${t.message}")
-                Toast.makeText(context, t.message, Toast.LENGTH_LONG).show()
-                return
-            }
-        })
-    }
 }

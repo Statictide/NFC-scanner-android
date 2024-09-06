@@ -10,15 +10,18 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import dk.sierrasoftware.nfcscanner.MainActivity
 import dk.sierrasoftware.nfcscanner.api.ApiClient
+import dk.sierrasoftware.nfcscanner.api.EntityClient
 import dk.sierrasoftware.nfcscanner.api.EntityClosureDTO
 import dk.sierrasoftware.nfcscanner.api.MaybeInt
 import dk.sierrasoftware.nfcscanner.api.PatchEntityDTO
 import dk.sierrasoftware.nfcscanner.databinding.FragmentHomeBinding
 import dk.sierrasoftware.nfcscanner.ui.dashboard.EntityAdapter
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -93,7 +96,9 @@ class HomeFragment : Fragment() {
 
         // Fetch entity
         if (args.tagUid.isNotEmpty()) {
-            fetchAndShowEntityByTagUid(args.tagUid)
+            lifecycleScope.launch {
+                fetchAndShowEntityByTagUid(args.tagUid)
+            }
         }
 
         return root
@@ -123,40 +128,19 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun fetchAndShowEntityByTagUid(tagUid: String) {
-        val call = ApiClient.apiService.getEntitiesByTagUid(tagUid, true)
-
-        call.enqueue(object : Callback<EntityClosureDTO> {
-            override fun onResponse(
-                call: Call<EntityClosureDTO>,
-                response: Response<EntityClosureDTO>
-            ) {
-                if (!response.isSuccessful) {
-                    val msg = String.format("Error: ${response.code()} ${response.message()}")
-                    Log.e("API_ERROR", "Failure: ${msg}")
-                    Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
-                    return
-                }
-
-                val body = response.body()!!
-
-                // If assign in progress, assign entity to tag
-                (activity as MainActivity).assignParentOnEntityIdIsActive?.let {
-                    assignParentDialog.dismiss()
-                    assignEntityToTag(it, body.id.toInt())
-                    return
-                }
-
-                homeViewModel.entityClosure.value = body
-            }
-
-            override fun onFailure(call: Call<EntityClosureDTO>, t: Throwable) {
-                // TODO: Add option to create new entity
-                Log.e("API_ERROR", "Failure: ${t.message}")
-                Toast.makeText(context, t.message, Toast.LENGTH_LONG).show()
+    suspend fun fetchAndShowEntityByTagUid(tagUid: String) {
+        val call = EntityClient.client.getOrCreateEntitiesByTagUid(tagUid).onSuccess { entity ->
+            // If assign in progress, assign entity to tag
+            (activity as MainActivity).assignParentOnEntityIdIsActive?.let {
+                assignParentDialog.dismiss()
+                assignEntityToTag(it, entity.id.toInt())
                 return
             }
-        })
+
+            homeViewModel.entityClosure.value = entity
+        }.onFailure { t ->
+            Toast.makeText(context, t.message, Toast.LENGTH_LONG).show()
+        }
     }
 
 

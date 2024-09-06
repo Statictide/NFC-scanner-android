@@ -8,3 +8,5 @@ import dk.sierrasoftware.nfcscanner.api.EntityClosureDTO
 class HomeViewModel : ViewModel() {
     val entityClosure = MutableLiveData<EntityClosureDTO?>()
 }
+
+
