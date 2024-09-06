@@ -21,7 +21,7 @@ interface ApiService {
     fun updateEntity(@Path("id") id: UInt, @Body entity: CreateEntityDTO): Call<EntityClosureDTO>
 
     @PATCH("/api/v0/entities/{id}")
-    fun patchEntity(@Path("id") id: UInt, @Body entity: PatchEntityDTO): Call<EntityClosureDTO>
+    suspend fun patchEntity(@Path("id") id: UInt, @Body entity: PatchEntityDTO): Response<EntityClosureDTO>
 
     @POST("/api/v0/check-for-update")
     fun checkForUpdate(@Body entity: CheckForUpdateDTO): Call<CheckForUpdateResponseDTO>

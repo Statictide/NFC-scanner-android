@@ -37,4 +37,18 @@ class EntityRepository(private val apiService: ApiService) {
             Result.failure(e)
         }
     }
+
+    suspend fun patchEntity(id: UInt, entity: PatchEntityDTO): Result<EntityClosureDTO> {
+        return try {
+            val response = apiService.patchEntity(id, entity)
+            if (response.isSuccessful) {
+                Result.success(response.body()!!)
+            } else {
+                Log.e("API_ERROR", "Failure: ${response.message()}");
+                Result.failure(Exception("API error: ${response.code()} ${response.message()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }
