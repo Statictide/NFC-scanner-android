@@ -8,28 +8,24 @@ import android.net.Uri
 import android.nfc.NfcAdapter
 import android.nfc.Tag
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import dk.sierrasoftware.nfcscanner.api.ApiClient.apiService
 import dk.sierrasoftware.nfcscanner.api.CheckForUpdateDTO
-import dk.sierrasoftware.nfcscanner.api.CheckForUpdateResponseDTO
 import dk.sierrasoftware.nfcscanner.api.CreateEntityDTO
 import dk.sierrasoftware.nfcscanner.api.EntityClient
+import dk.sierrasoftware.nfcscanner.api.UtilClient
 import dk.sierrasoftware.nfcscanner.databinding.ActivityMainBinding
 import kotlinx.coroutines.launch
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 
 class MainActivity : AppCompatActivity() {
@@ -41,7 +37,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var pendingIntent: PendingIntent
     private lateinit var intentFilters: Array<IntentFilter>
 
-    public var assignParentOnEntityIdIsActive: UInt? = null // Signal to assign entity to tag on next NFC scan
+    public var assignParentOnEntityIdIsActive: Int? = null // Signal to assign entity to tag on next NFC scan
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -106,7 +102,7 @@ class MainActivity : AppCompatActivity() {
         val tagUid: String = bytesToHex(tag.id)
 
         // Navigate
-        val actionNavigationHome = MobileNavigationDirections.actionNavigationHomeWithTagUid(tagUid, 0)
+        val actionNavigationHome = MobileNavigationDirections.actionNavigationHomeWithTagUid(tagUid)
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
         navController.navigate(actionNavigationHome)
     }
@@ -121,32 +117,21 @@ class MainActivity : AppCompatActivity() {
     }
 
     // Show popup if the app needs an update.
-    private fun checkForUpdate() {
+    private suspend fun checkForUpdate() {
         val versionName = packageManager.getPackageInfo(packageName, 0).versionName
         // Check format is "vX.Y.Z-alpha.1+build.1234"
         assert(versionName.contains(Regex("^([0-9]+)\\.([0-9]+)\\.([0-9]+)$")))
 
-        val call = apiService.checkForUpdate(CheckForUpdateDTO(versionName))
-        call.enqueue(object : Callback<CheckForUpdateResponseDTO> {
-            override fun onResponse(
-                call: Call<CheckForUpdateResponseDTO>,
-                response: Response<CheckForUpdateResponseDTO>
-            ) {
-                if (!response.isSuccessful) {
-                    val msg = String.format("Error: ${response.code()} ${response.message()}")
-                    Log.e("API_ERROR", "Failure: ${msg}")
-                    Toast.makeText(this@MainActivity, msg, Toast.LENGTH_LONG).show();
-                    return
-                }
+        UtilClient.client.checkForUpdate(CheckForUpdateDTO(versionName)).onSuccess { body ->
+            val mandatory = body.update_mandatory != false
+            val recommended = body.update_recommended == true
 
-                val body = response.body()!!
-
-                if (body.update_mandatory || body.update_recommended == true) {
-                    AlertDialog.Builder(this@MainActivity)
-                        // "Update available", or "Update mandatory"
-                    .setTitle(body.title ?: "Update ${if (body.update_mandatory) "mandatory" else "available"}")
+            if (mandatory || recommended) {
+                AlertDialog.Builder(this@MainActivity)
+                    // "Update available", or "Update mandatory"
+                    .setTitle(body.title ?: "Update ${if (mandatory) "mandatory" else "available"}")
                     .setMessage(body.message ?: "Please update the app to the latest version")
-                    .setPositiveButton("Ok") { _, _ ->
+                    .setPositiveButton("Update") { _, _ ->
                         // Go to url
                         body.update_url?.let {
                             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(it))
@@ -154,26 +139,20 @@ class MainActivity : AppCompatActivity() {
                         }
 
                         // Close the app if the update is mandatory
-                        if (body.update_mandatory) {
+                        if (mandatory) {
                             finish()
                         }
                     }
                     .setNegativeButton("Cancel") { dialog, _ ->
                         dialog.cancel()
-                        if (body.update_mandatory) {
+                        if (mandatory) {
                             finish()
                         }
                     }
-                    .setCancelable(!body.update_mandatory)
+                    .setCancelable(!mandatory)
                     .show()
-                }
             }
-
-            override fun onFailure(call: Call<CheckForUpdateResponseDTO>, t: Throwable) {
-                Log.e("API_ERROR", "Failure: ${t.message}")
-                return
-            }
-        })
+        }
     }
 
 
@@ -187,27 +166,33 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         // Handle item selection.
         return when (item.itemId) {
-            R.id.action_create_item -> {
-                Toast.makeText(this, "Todo create", Toast.LENGTH_LONG)
+            R.id.action_create_entity -> {
                 lifecycleScope.launch {
-                    extracted()
+                    createNewEntity()
                 }
                 true
             }
             R.id.action_reset_tag -> {
-                Toast.makeText(this, "Todo reset", Toast.LENGTH_LONG)
+                Toast.makeText(this, "Todo reset", Toast.LENGTH_LONG).show()
+                true
+            }
+            R.id.action_delete_entity -> {
+                // Show on home screen?
+                Toast.makeText(this, "Todo delete", Toast.LENGTH_LONG).show()
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
     }
 
-    private suspend fun extracted() {
-        val entity = CreateEntityDTO(null, "New entity", null);
-        EntityClient.client.createEntity(entity).onSuccess {
-
-        }.onFailure {
-
+    private suspend fun createNewEntity() {
+        val newEntity = CreateEntityDTO(name = "New entity", tag_uid = null, parent_id = null);
+        EntityClient.client.createEntity(newEntity).onSuccess { entity ->
+            val actionNavigationHome = MobileNavigationDirections.actionNavigationHomeWithEntityId(entity.id.toInt())
+            val navController = Navigation.findNavController(this@MainActivity, R.id.nav_host_fragment_activity_main)
+            navController.navigate(actionNavigationHome)
+        }.onFailure { t ->
+            Toast.makeText(this, t.message, Toast.LENGTH_LONG).show()
         }
     }
 }

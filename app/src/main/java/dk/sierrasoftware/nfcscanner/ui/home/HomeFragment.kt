@@ -91,14 +91,20 @@ class HomeFragment : Fragment() {
             adapter = entityAdapter
         }
 
-        setupAssignParentDialog(root)
-
         // Fetch entity
         if (args.tagUid.isNotEmpty()) {
             lifecycleScope.launch {
                 fetchAndShowEntityByTagUid(args.tagUid)
             }
         }
+
+        if (args.entityId != 0) {
+            lifecycleScope.launch {
+                fetchAndShowEntity(args.entityId)
+            }
+        }
+
+        setupAssignParentDialog(root)
 
         return root
     }
@@ -134,7 +140,7 @@ class HomeFragment : Fragment() {
     }
 
     suspend fun fetchAndShowEntityByTagUid(tagUid: String) {
-        EntityClient.client.getOrCreateEntitiesByTagUid(tagUid).onSuccess { entity ->
+        EntityClient.client.getOrCreateEntityByTagUid(tagUid).onSuccess { entity ->
             // If assign in progress, assign entity to tag
             (activity as MainActivity).assignParentOnEntityIdIsActive?.let {
                 assignParentDialog.dismiss()
@@ -144,6 +150,15 @@ class HomeFragment : Fragment() {
                 return
             }
 
+            homeViewModel.entityClosure.value = entity
+        }.onFailure { t ->
+            Toast.makeText(context, t.message, Toast.LENGTH_LONG).show()
+        }
+    }
+
+    // Todo-
+    suspend fun fetchAndShowEntity(entityId: Int) {
+        EntityClient.client.getEntity(entityId).onSuccess { entity ->
             homeViewModel.entityClosure.value = entity
         }.onFailure { t ->
             Toast.makeText(context, t.message, Toast.LENGTH_LONG).show()
@@ -171,7 +186,7 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private suspend fun assignEntityToTag(entryId: UInt, newParentId: Int) {
+    private suspend fun assignEntityToTag(entryId: Int, newParentId: Int) {
         val patchEntity = PatchEntityDTO(parent_id = MaybeInt(newParentId))
         EntityClient.client.patchEntity(entryId, patchEntity).onSuccess { entity ->
             homeViewModel.entityClosure.value = entity

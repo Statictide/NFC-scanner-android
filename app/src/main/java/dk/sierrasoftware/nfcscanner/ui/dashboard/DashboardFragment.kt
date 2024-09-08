@@ -50,7 +50,7 @@ class DashboardFragment : Fragment() {
         entityAdapter = EntityAdapter(dashboardViewModel.entities.value.orEmpty()) // Initially empty list
 
         // React to changes in model
-        dashboardViewModel.entities.observe(viewLifecycleOwner) {
+        dashboardViewModel._entities.observe(viewLifecycleOwner) {
             entityAdapter = EntityAdapter(it.orEmpty())
             binding.entities.adapter = entityAdapter
         }
