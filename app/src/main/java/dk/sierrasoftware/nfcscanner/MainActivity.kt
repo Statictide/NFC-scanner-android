@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
@@ -25,6 +26,7 @@ import dk.sierrasoftware.nfcscanner.api.CreateEntityDTO
 import dk.sierrasoftware.nfcscanner.api.EntityClient
 import dk.sierrasoftware.nfcscanner.api.UtilClient
 import dk.sierrasoftware.nfcscanner.databinding.ActivityMainBinding
+import dk.sierrasoftware.nfcscanner.ui.home.HomeFragment
 import kotlinx.coroutines.launch
 
 
@@ -36,8 +38,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var nfcAdapter: NfcAdapter
     private lateinit var pendingIntent: PendingIntent
     private lateinit var intentFilters: Array<IntentFilter>
-
-    public var assignParentOnEntityIdIsActive: Int? = null // Signal to assign entity to tag on next NFC scan
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -99,12 +99,28 @@ class MainActivity : AppCompatActivity() {
 
         // Get tag uid
         val tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG, Tag::class.java)!!
+
+        onNfcTagScanned(tag)
+    }
+
+    fun onNfcTagScanned(tag: Tag) {
         val tagUid: String = bytesToHex(tag.id)
 
-        // Navigate
-        val actionNavigationHome = MobileNavigationDirections.actionNavigationHomeWithTagUid(tagUid)
-        val navController = findNavController(R.id.nav_host_fragment_activity_main)
-        navController.navigate(actionNavigationHome)
+        // Find the fragment in the back stack
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_activity_main) as NavHostFragment?
+        if (navHostFragment != null) {
+            // Get the currently displayed fragment
+            val currentFragment = navHostFragment.childFragmentManager.primaryNavigationFragment
+            if (currentFragment is HomeFragment) {
+                // Cast to your fragment and pass the NFC data
+                currentFragment.onNfcEventReceived(tagUid)
+            } else {
+                // Navigate
+                val actionNavigationHome = MobileNavigationDirections.actionNavigationHomeWithTagUid(tagUid)
+                val navController = findNavController(R.id.nav_host_fragment_activity_main)
+                navController.navigate(actionNavigationHome)
+            }
+        }
     }
 
     // Helper method to convert byte array to hexadecimal string

@@ -132,8 +132,14 @@ class HomeFragment : Fragment() {
 
     private fun showAssignParentPopup() {
         val entityId = homeViewModel.entityClosure.value!!.id
-        (activity as MainActivity).assignParentOnEntityIdIsActive = entityId;
+        assignParentOnEntityIdIsActive = entityId;
         assignParentDialog.show()
+    }
+
+    fun onNfcEventReceived(tagUid: String) {
+        lifecycleScope.launch {
+            fetchAndShowEntityByTagUid(tagUid)
+        }
     }
 
     private suspend fun fetchAndShowEntityByTagUid(tagUid: String) {
