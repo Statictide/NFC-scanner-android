@@ -4,7 +4,6 @@ import android.view.LayoutInflater
 import android.view.View;
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -26,25 +25,26 @@ class EntityAdapter(private val entities: List<EntityClosureDTO>) : RecyclerView
     override fun getItemCount(): Int = entities.size
 
     class EntityViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val nameView: TextView = itemView.findViewById(R.id.name)
-        private val childrenView: RecyclerView = itemView.findViewById(R.id.children)
+        private val nameView: TextView = itemView.findViewById(R.id.entity_adapter_name)
+        private val childrenGroup: View = itemView.findViewById(R.id.entity_adapter_children_group)
+        private val childrenView: RecyclerView = itemView.findViewById(R.id.entity_adapter_children)
 
         fun bind(entity: EntityClosureDTO) {
             nameView.text = entity.name
 
             // Set OnClickListener to show a Toast with the entity ID
             itemView.setOnClickListener {
-                val actionNavigationHome = MobileNavigationDirections.actionNavigationHomeWithEntityId(entity.id.toInt())
+                val actionNavigationHome = MobileNavigationDirections.actionNavigationHomeWithEntityId(entity.id)
                 val navController = Navigation.findNavController(itemView)
                 navController.navigate(actionNavigationHome)
             }
 
             if (entity.children.isNotEmpty()) {
-                childrenView.visibility = View.VISIBLE
+                childrenGroup.visibility = View.VISIBLE
                 childrenView.layoutManager = LinearLayoutManager(itemView.context)
                 childrenView.adapter = EntityAdapter(entity.children)
             } else {
-                childrenView.visibility = View.GONE
+                childrenGroup.visibility = View.GONE
             }
         }
     }

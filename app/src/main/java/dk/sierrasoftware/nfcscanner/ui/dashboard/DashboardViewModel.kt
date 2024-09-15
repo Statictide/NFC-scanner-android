@@ -14,7 +14,7 @@ class DashboardViewModel : ViewModel() {
 
 
     suspend fun fetchEntities() {
-        val result = EntityClient.client.getEntitiesByUser(1u)
+        val result = EntityClient.client.getEntitiesByUser(1)
         result.onSuccess { entities ->
             Log.i("API RESPONSE", "Got response")
             this._entities.value = entities

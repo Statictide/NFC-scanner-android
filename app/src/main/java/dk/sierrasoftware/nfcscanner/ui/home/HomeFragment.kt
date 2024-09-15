@@ -25,17 +25,14 @@ class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
 
-    // This property is only valid between onCreateView and
-    // onDestroyView.
+    // This property is only valid between onCreateView and onDestroyView.
     private val binding get() = _binding!!
 
     private val args: HomeFragmentArgs by navArgs()
 
     private lateinit var homeViewModel: HomeViewModel;
 
-    private lateinit var entityAdapter: EntityAdapter
-
-
+    private var assignParentOnEntityIdIsActive: Int? = null // Signal to assign entity to tag on next NFC scan
     private lateinit var assignParentDialog: AlertDialog
 
     override fun onCreateView(
@@ -48,48 +45,14 @@ class HomeFragment : Fragment() {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        entityAdapter = EntityAdapter(homeViewModel.entityClosure.value?.children.orEmpty()) // Initially empty list
+        binding.fragmentHomeChildrenRecyclerView.layoutManager = LinearLayoutManager(context)
+        //binding.fragmentHomeChildrenRecyclerView.adapter = EntityAdapter(homeViewModel.entityClosure.value?.children.orEmpty()) // Initially empty list
 
         // Bind view model
         homeViewModel.entityClosure.observe(viewLifecycleOwner) {
-            // Handle null
-            if (it == null) {
-                binding.entityGroup.isEnabled = false
-                return@observe
-            }
-
-            binding.entityGroup.isEnabled = true
-
-            // Handle it
-            binding.nameView.setText(it.name)
-            binding.parentView.text = it.parent_name
-            binding.assignButton.isEnabled = true
-            entityAdapter = EntityAdapter(it.children)
-            binding.childrenRecyclerView.adapter = EntityAdapter(it.children )
-
-            // Save name on update
-            binding.nameView.setOnEditorActionListener { view, actionId, event ->
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    val name = view.getText().toString()
-                    view.clearFocus()
-                    lifecycleScope.launch {
-                        saveName(homeViewModel.entityClosure.value!!, name)
-                    }
-                }
-                false
-            }
-
-            binding.deleteParentButton.setOnClickListener { view ->
-                lifecycleScope.launch {
-                    removeParent(homeViewModel.entityClosure.value!!)
-                }
-            }
+            renderEntity(it)
         }
 
-        binding.childrenRecyclerView.apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter = entityAdapter
-        }
 
         // Fetch entity
         if (args.tagUid.isNotEmpty()) {
@@ -109,11 +72,45 @@ class HomeFragment : Fragment() {
         return root
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    private fun renderEntity(it: EntityClosureDTO?) {
+        // Handle null
+        if (it == null) {
+            binding.fragmentHomeEntityGroup.isEnabled = false
+            return
+        }
+
+        binding.fragmentHomeEntityGroup.isEnabled = true
+
+        // Set values
+        binding.nameView.setText(it.name)
+        binding.parentView.text = it.parent_name
+        binding.assignButton.isEnabled = true
+        binding.fragmentHomeChildrenRecyclerView.adapter = EntityAdapter(it.children)
+
+        // Save name on update
+        binding.nameView.setOnEditorActionListener { view, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                val name = view.getText().toString()
+                view.clearFocus()
+                lifecycleScope.launch {
+                    saveName(homeViewModel.entityClosure.value!!, name)
+                }
+            }
+            false
+        }
+
+        binding.deleteParentButton.setOnClickListener { view ->
+            lifecycleScope.launch {
+                removeParent(homeViewModel.entityClosure.value!!)
+            }
+        }
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        assignParentDialog.dismiss()
+        _binding = null
+    }
 
     private fun setupAssignParentDialog(view: View) {
         val builder = AlertDialog.Builder(view.context)
@@ -123,7 +120,7 @@ class HomeFragment : Fragment() {
         // Set id to signal assignment on next NFC scan
         // Remove it when dialog is dismissed, to remove assignment signal
         builder.setOnDismissListener {
-            (activity as MainActivity).assignParentOnEntityIdIsActive = null;
+            assignParentOnEntityIdIsActive = null;
         }
 
         assignParentDialog = builder.create();
@@ -139,13 +136,13 @@ class HomeFragment : Fragment() {
         assignParentDialog.show()
     }
 
-    suspend fun fetchAndShowEntityByTagUid(tagUid: String) {
+    private suspend fun fetchAndShowEntityByTagUid(tagUid: String) {
         EntityClient.client.getOrCreateEntityByTagUid(tagUid).onSuccess { entity ->
             // If assign in progress, assign entity to tag
-            (activity as MainActivity).assignParentOnEntityIdIsActive?.let {
+            assignParentOnEntityIdIsActive?.let {
                 assignParentDialog.dismiss()
                 val entityBeingReassigned = it
-                val newParentId = entity.id.toInt()
+                val newParentId = entity.id
                 assignEntityToTag(entityBeingReassigned, newParentId)
                 return
             }
@@ -156,15 +153,13 @@ class HomeFragment : Fragment() {
         }
     }
 
-    // Todo-
-    suspend fun fetchAndShowEntity(entityId: Int) {
+    private suspend fun fetchAndShowEntity(entityId: Int) {
         EntityClient.client.getEntity(entityId).onSuccess { entity ->
             homeViewModel.entityClosure.value = entity
         }.onFailure { t ->
             Toast.makeText(context, t.message, Toast.LENGTH_LONG).show()
         }
     }
-
 
     private suspend fun saveName(entity: EntityClosureDTO, newName: String) {
         val patch = PatchEntityDTO(name = newName)

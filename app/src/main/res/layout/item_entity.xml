@@ -8,7 +8,7 @@
 
     <!-- Parent Entity Name -->
     <TextView
-        android:id="@+id/name"
+        android:id="@+id/entity_adapter_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Entity Name Placeholder"
@@ -18,9 +18,12 @@
 
     <!-- Container for the vertical line and child RecyclerView -->
     <LinearLayout
+        android:id="@+id/entity_adapter_children_group"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+
+        >
 
         <!-- Vertical Line -->
         <View
@@ -33,7 +36,7 @@
 
         <!-- Child RecyclerView -->
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/children"
+            android:id="@+id/entity_adapter_children"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"

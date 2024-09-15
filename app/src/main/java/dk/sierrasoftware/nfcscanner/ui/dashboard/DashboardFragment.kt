@@ -47,18 +47,12 @@ class DashboardFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        entityAdapter = EntityAdapter(dashboardViewModel.entities.value.orEmpty()) // Initially empty list
+        binding.entities.layoutManager = LinearLayoutManager(context)
+        binding.entities.adapter = EntityAdapter(dashboardViewModel.entities.value.orEmpty())
 
         // React to changes in model
-        dashboardViewModel._entities.observe(viewLifecycleOwner) {
-            entityAdapter = EntityAdapter(it.orEmpty())
-            binding.entities.adapter = entityAdapter
-        }
-
-        binding.entities.apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter = entityAdapter
+        dashboardViewModel.entities.observe(viewLifecycleOwner) {
+            binding.entities.adapter = EntityAdapter(it.orEmpty())
         }
     }
-
 }
