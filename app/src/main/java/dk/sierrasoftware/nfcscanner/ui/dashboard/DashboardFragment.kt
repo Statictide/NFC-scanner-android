@@ -22,12 +22,11 @@ class DashboardFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var dashboardViewModel: DashboardViewModel;
-    private lateinit var entityAdapter: EntityAdapter
 
     override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View {
         dashboardViewModel = ViewModelProvider(this)[DashboardViewModel::class.java]
         lifecycleScope.launch {

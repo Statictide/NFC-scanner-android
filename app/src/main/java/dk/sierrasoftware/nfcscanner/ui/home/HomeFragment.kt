@@ -12,7 +12,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
-import dk.sierrasoftware.nfcscanner.MainActivity
 import dk.sierrasoftware.nfcscanner.api.EntityClient
 import dk.sierrasoftware.nfcscanner.api.EntityClosureDTO
 import dk.sierrasoftware.nfcscanner.api.MaybeInt
@@ -32,13 +31,14 @@ class HomeFragment : Fragment() {
 
     private lateinit var homeViewModel: HomeViewModel;
 
-    private var assignParentOnEntityIdIsActive: Int? = null // Signal to assign entity to tag on next NFC scan
+    private var assignParentOnEntityIdIsActive: Int? =
+        null // Signal to assign entity to tag on next NFC scan
     private lateinit var assignParentDialog: AlertDialog
 
     override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View {
         homeViewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
 
@@ -46,13 +46,11 @@ class HomeFragment : Fragment() {
         val root: View = binding.root
 
         binding.fragmentHomeChildrenRecyclerView.layoutManager = LinearLayoutManager(context)
-        //binding.fragmentHomeChildrenRecyclerView.adapter = EntityAdapter(homeViewModel.entityClosure.value?.children.orEmpty()) // Initially empty list
 
         // Bind view model
         homeViewModel.entityClosure.observe(viewLifecycleOwner) {
             renderEntity(it)
         }
-
 
         // Fetch entity
         if (args.tagUid.isNotEmpty()) {
@@ -72,25 +70,32 @@ class HomeFragment : Fragment() {
         return root
     }
 
-    private fun renderEntity(it: EntityClosureDTO?) {
+    private fun renderEntity(entity: EntityClosureDTO?) {
         // Handle null
-        if (it == null) {
-            binding.fragmentHomeEntityGroup.isEnabled = false
+        if (entity == null) {
+            binding.fragmentHomeEntityGroup.visibility = View.GONE
             return
         }
 
-        binding.fragmentHomeEntityGroup.isEnabled = true
+        binding.fragmentHomeEntityGroup.visibility = View.VISIBLE
 
         // Set values
-        binding.nameView.setText(it.name)
-        binding.parentView.text = it.parent_name
+        binding.nameView.setText(entity.name)
+        if (entity.parent_id != null) {
+            binding.parentView.text = entity.parent_name
+            binding.parentView.setOnClickListener {
+                lifecycleScope.launch {
+                    fetchAndShowEntity(entity.parent_id)
+                }
+            }
+        }
         binding.assignButton.isEnabled = true
-        binding.fragmentHomeChildrenRecyclerView.adapter = EntityAdapter(it.children)
+        binding.fragmentHomeChildrenRecyclerView.adapter = EntityAdapter(listOf(entity), false)
 
         // Save name on update
         binding.nameView.setOnEditorActionListener { view, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                val name = view.getText().toString()
+                val name = view.text.toString()
                 view.clearFocus()
                 lifecycleScope.launch {
                     saveName(homeViewModel.entityClosure.value!!, name)
@@ -99,7 +104,7 @@ class HomeFragment : Fragment() {
             false
         }
 
-        binding.deleteParentButton.setOnClickListener { view ->
+        binding.deleteParentButton.setOnClickListener {
             lifecycleScope.launch {
                 removeParent(homeViewModel.entityClosure.value!!)
             }
