@@ -68,15 +68,29 @@
 
                 <EditText
                     android:id="@+id/name_view"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
+                    android:layout_marginStart="@dimen/padding_medium"
                     android:layout_marginEnd="0dp"
                     android:autofillHints="name"
                     android:hint="@string/name_hint"
                     android:imeOptions="actionDone"
                     android:inputType="text"
                     android:textSize="@dimen/text_size_medium" />
+
+
+                <Button
+                    android:id="@+id/fragment_home_delete_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/padding_medium"
+                    android:layout_marginEnd="0dp"
+                    android:text="Delete"
+                    android:layout_gravity="end"
+                    >
+
+                </Button>
             </LinearLayout>
 
             <!-- Parent Row -->
@@ -99,7 +113,6 @@
                     android:layout_marginStart="8dp"
                     android:layout_marginEnd="0dp"
                     android:hint="@string/parent_hint"
-
                     android:textSize="@dimen/text_size_medium" />
 
                 <Button
@@ -149,16 +162,51 @@
             </LinearLayout> <!-- entity children -->
     </LinearLayout> <!-- Entity group -->
 
-    <Button
-        android:id="@+id/assign_button"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:enabled="false"
-        android:padding="@dimen/padding_medium"
-        android:text="@string/assign_button"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_weight="1"
+            android:text="@string/assign_to_parent_tag" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/assign_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginHorizontal="@dimen/padding_medium"
+            android:enabled="false"
+            android:padding="@dimen/padding_medium"
+            android:text="@string/assign_button" />
+
+        <Button
+            android:id="@+id/select_parent_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginHorizontal="@dimen/padding_medium"
+            android:enabled="false"
+            android:padding="@dimen/padding_medium"
+            android:text="@string/select_parent_button"
+        />
+
+        </LinearLayout>
+    </LinearLayout>
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

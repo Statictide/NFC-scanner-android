@@ -8,8 +8,10 @@ import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import dk.sierrasoftware.nfcscanner.api.EntityClient
@@ -17,6 +19,7 @@ import dk.sierrasoftware.nfcscanner.api.EntityClosureDTO
 import dk.sierrasoftware.nfcscanner.api.MaybeInt
 import dk.sierrasoftware.nfcscanner.api.PatchEntityDTO
 import dk.sierrasoftware.nfcscanner.databinding.FragmentHomeBinding
+import dk.sierrasoftware.nfcscanner.ui.dashboard.DashboardFragment
 import dk.sierrasoftware.nfcscanner.ui.dashboard.EntityAdapter
 import kotlinx.coroutines.launch
 
@@ -27,18 +30,14 @@ class HomeFragment : Fragment() {
     // This property is only valid between onCreateView and onDestroyView.
     private val binding get() = _binding!!
 
-    private val args: HomeFragmentArgs by navArgs()
+    private val safeArgs: HomeFragmentArgs by navArgs()
 
     private lateinit var homeViewModel: HomeViewModel;
 
-    private var assignParentOnEntityIdIsActive: Int? =
-        null // Signal to assign entity to tag on next NFC scan
-    private lateinit var assignParentDialog: AlertDialog
+    private lateinit var assignParentInProcessDialog: AlertDialog
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         homeViewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
 
@@ -53,15 +52,15 @@ class HomeFragment : Fragment() {
         }
 
         // Fetch entity
-        if (args.tagUid.isNotEmpty()) {
+        if (safeArgs.tagUid.isNotEmpty()) {
             lifecycleScope.launch {
-                fetchAndShowEntityByTagUid(args.tagUid)
+                fetchAndShowEntityByTagUid(safeArgs.tagUid)
             }
         }
 
-        if (args.entityId != 0) {
+        if (safeArgs.entityId != 0) {
             lifecycleScope.launch {
-                fetchAndShowEntity(args.entityId)
+                fetchAndShowEntity(safeArgs.entityId)
             }
         }
 
@@ -81,16 +80,23 @@ class HomeFragment : Fragment() {
 
         // Set values
         binding.nameView.setText(entity.name)
+        binding.parentView.text = entity.parent_name
         if (entity.parent_id != null) {
-            binding.parentView.text = entity.parent_name
             binding.parentView.setOnClickListener {
-                lifecycleScope.launch {
-                    fetchAndShowEntity(entity.parent_id)
-                }
+                lifecycleScope.launch { fetchAndShowEntity(entity.parent_id) }
             }
         }
+
+        // Delete entity
+        binding.fragmentHomeDeleteButton.setOnClickListener {
+            lifecycleScope.launch { deleteEntity(entity.id) }
+        }
+
+
         binding.assignButton.isEnabled = true
-        binding.fragmentHomeChildrenRecyclerView.adapter = EntityAdapter(listOf(entity), false)
+        binding.selectParentButton.isEnabled = true
+        binding.fragmentHomeChildrenRecyclerView.adapter =
+            EntityAdapter(listOf(entity), showName = false)
 
         // Save name on update
         binding.nameView.setOnEditorActionListener { view, actionId, _ ->
@@ -113,7 +119,7 @@ class HomeFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        assignParentDialog.dismiss()
+        assignParentInProcessDialog.dismiss()
         _binding = null
     }
 
@@ -122,23 +128,23 @@ class HomeFragment : Fragment() {
         builder.setTitle("NFC Scan")
         builder.setMessage("Approach an NFC tag to assign.")
 
-        // Set id to signal assignment on next NFC scan
-        // Remove it when dialog is dismissed, to remove assignment signal
-        builder.setOnDismissListener {
-            assignParentOnEntityIdIsActive = null;
-        }
-
-        assignParentDialog = builder.create();
+        assignParentInProcessDialog = builder.create();
 
         binding.assignButton.setOnClickListener {
-            showAssignParentPopup()
+            assignParentInProcessDialog.show()
         }
-    }
 
-    private fun showAssignParentPopup() {
-        val entityId = homeViewModel.entityClosure.value!!.id
-        assignParentOnEntityIdIsActive = entityId;
-        assignParentDialog.show()
+        binding.selectParentButton.setOnClickListener {
+            setFragmentResultListener(DashboardFragment.REQUEST_KEY) { _, bundle ->
+                val newParentId = bundle.getInt("entityId")
+                lifecycleScope.launch {
+                    assignEntityToTag(homeViewModel.entityClosure.value!!.id, newParentId)
+                }
+            }
+
+            val action = HomeFragmentDirections.actionNavigationHomeToNavigationDashboard(DashboardFragment.ENTITY_PICKER)
+            findNavController().navigate(action)
+        }
     }
 
     fun onNfcEventReceived(tagUid: String) {
@@ -150,9 +156,9 @@ class HomeFragment : Fragment() {
     private suspend fun fetchAndShowEntityByTagUid(tagUid: String) {
         EntityClient.client.getOrCreateEntityByTagUid(tagUid).onSuccess { entity ->
             // If assign in progress, assign entity to tag
-            assignParentOnEntityIdIsActive?.let {
-                assignParentDialog.dismiss()
-                val entityBeingReassigned = it
+            if (assignParentInProcessDialog.isShowing) {
+                assignParentInProcessDialog.dismiss()
+                val entityBeingReassigned = homeViewModel.entityClosure.value!!.id
                 val newParentId = entity.id
                 assignEntityToTag(entityBeingReassigned, newParentId)
                 return
@@ -199,6 +205,13 @@ class HomeFragment : Fragment() {
         }.onFailure { t ->
             Toast.makeText(context, t.message, Toast.LENGTH_LONG).show()
         }
+    }
 
+    private suspend fun deleteEntity(entryId: Int) {
+        EntityClient.client.deleteEntity(entryId).onSuccess {
+            homeViewModel.entityClosure.value = null
+        }.onFailure { t ->
+            Toast.makeText(context, t.message, Toast.LENGTH_LONG).show()
+        }
     }
 }

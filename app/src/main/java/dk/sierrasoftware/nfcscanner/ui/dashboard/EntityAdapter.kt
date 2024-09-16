@@ -12,8 +12,13 @@ import dk.sierrasoftware.nfcscanner.MobileNavigationDirections
 import dk.sierrasoftware.nfcscanner.R
 import dk.sierrasoftware.nfcscanner.api.EntityClosureDTO
 
+interface OnEntitySelectedListener {
+    fun onEntitySelected(entityId: Int)
+}
+
 class EntityAdapter(
     private val entities: List<EntityClosureDTO>,
+    private val listener: OnEntitySelectedListener? = null,
     private val showName: Boolean = true
 ) :
     RecyclerView.Adapter<EntityAdapter.EntityViewHolder>() {
@@ -24,7 +29,7 @@ class EntityAdapter(
     }
 
     override fun onBindViewHolder(holder: EntityViewHolder, position: Int) {
-        holder.bind(entities[position], showName)
+        holder.bind(entities[position], listener, showName)
     }
 
     override fun getItemCount(): Int = entities.size
@@ -34,18 +39,13 @@ class EntityAdapter(
         private val childrenGroup: View = itemView.findViewById(R.id.entity_adapter_children_group)
         private val childrenView: RecyclerView = itemView.findViewById(R.id.entity_adapter_children)
 
-        fun bind(entity: EntityClosureDTO, showName: Boolean) {
+        fun bind(entity: EntityClosureDTO, listener: OnEntitySelectedListener?, showName: Boolean) {
             if (showName) {
                 nameView.text = entity.name
-                nameView.visibility = View.VISIBLE
-
-
-                // Set OnClickListener to show a Toast with the entity ID
-                itemView.setOnClickListener {
-                    val actionNavigationHome =
-                        MobileNavigationDirections.actionNavigationHomeWithEntityId(entity.id)
-                    val navController = Navigation.findNavController(itemView)
-                    navController.navigate(actionNavigationHome)
+                if (listener != null) {
+                    nameView.setOnClickListener {
+                        listener.onEntitySelected(entity.id)
+                    }
                 }
             } else {
                 nameView.visibility = View.GONE
@@ -54,7 +54,7 @@ class EntityAdapter(
             if (entity.children.isNotEmpty()) {
                 childrenGroup.visibility = View.VISIBLE
                 childrenView.layoutManager = LinearLayoutManager(itemView.context)
-                childrenView.adapter = EntityAdapter(entity.children)
+                childrenView.adapter = EntityAdapter(entity.children, listener)
             } else {
                 childrenGroup.visibility = View.GONE
             }

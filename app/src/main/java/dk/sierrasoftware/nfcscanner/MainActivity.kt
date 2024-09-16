@@ -116,9 +116,9 @@ class MainActivity : AppCompatActivity() {
                 currentFragment.onNfcEventReceived(tagUid)
             } else {
                 // Navigate
-                val actionNavigationHome = MobileNavigationDirections.actionNavigationHomeWithTagUid(tagUid)
+                val action = MobileNavigationDirections.actionNavigationHomeWithTagUid(tagUid)
                 val navController = findNavController(R.id.nav_host_fragment_activity_main)
-                navController.navigate(actionNavigationHome)
+                navController.navigate(action)
             }
         }
     }
@@ -204,7 +204,7 @@ class MainActivity : AppCompatActivity() {
     private suspend fun createNewEntity() {
         val newEntity = CreateEntityDTO(name = "New entity", tag_uid = null, parent_id = null);
         EntityClient.client.createEntity(newEntity).onSuccess { entity ->
-            val actionNavigationHome = MobileNavigationDirections.actionNavigationHomeWithEntityId(entity.id.toInt())
+            val actionNavigationHome = MobileNavigationDirections.actionNavigationHomeWithEntityId(entity.id)
             val navController = Navigation.findNavController(this@MainActivity, R.id.nav_host_fragment_activity_main)
             navController.navigate(actionNavigationHome)
         }.onFailure { t ->

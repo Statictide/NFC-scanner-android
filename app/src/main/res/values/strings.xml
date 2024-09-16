@@ -12,8 +12,10 @@
     <string name="children_label">Children</string>
     <string name="image_label">Image:</string>
     <string name="na">N/A</string>
-    <string name="assign_button">Assign to</string>
+    <string name="assign_button">Scan</string>
     <string name="title_entities">Entities</string>
     <string name="name_hint">Input name</string>
     <string name="parent_hint">None</string>
+    <string name="select_parent_button">Select</string>
+    <string name="assign_to_parent_tag">Assign to parent tag</string>
 </resources>

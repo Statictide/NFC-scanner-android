@@ -30,10 +30,25 @@
             android:name="tag_uid"
             app:argType="string"
             android:defaultValue="" />
+            <!-- app:nullable="true" -->
         <argument
             android:name="entity_id"
             app:argType="integer"
             android:defaultValue="0" />
+            <!-- app:nullable="true" -->
+        <action
+            android:id="@+id/action_navigation_home_to_navigation_dashboard"
+            app:destination="@id/navigation_dashboard">
+            <!--
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right">
+            -->
+            <argument
+                android:name="task" />
+        </action>
+
     </fragment>
 
     <fragment
@@ -41,6 +56,10 @@
         android:name="dk.sierrasoftware.nfcscanner.ui.dashboard.DashboardFragment"
         android:label="@string/title_dashboard"
         tools:layout="@layout/fragment_dashboard" >
+        <argument
+            android:name="task"
+            app:argType="string"
+            android:defaultValue="NONE" />
     </fragment>
 
     <fragment

@@ -1,22 +1,30 @@
 package dk.sierrasoftware.nfcscanner.ui.dashboard
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
-import dk.sierrasoftware.nfcscanner.api.EntityClient
+import dk.sierrasoftware.nfcscanner.MobileNavigationDirections
 import dk.sierrasoftware.nfcscanner.databinding.FragmentDashboardBinding
 import kotlinx.coroutines.launch
 
 class DashboardFragment : Fragment() {
 
+    companion object {
+        val REQUEST_KEY: String = "DashboardFragment_REQUEST_KEY"
+        val ENTITY_PICKER: String = "ENTITY_PICKER"
+    }
+
     private var _binding: FragmentDashboardBinding? = null
+    private val safeArgs: DashboardFragmentArgs by navArgs()
 
     // This property is only valid between onCreateView and onDestroyView.
     private val binding get() = _binding!!
@@ -35,7 +43,12 @@ class DashboardFragment : Fragment() {
 
         _binding = FragmentDashboardBinding.inflate(inflater, container, false)
 
-        setupRecyclerView()
+        val task: String = safeArgs.task
+        if (task == ENTITY_PICKER) {
+            setupRecyclerView(returnEntityToHomeFragment)
+        } else {
+            setupRecyclerView(navigateToEntity)
+        }
 
         return binding.root
     }
@@ -45,13 +58,26 @@ class DashboardFragment : Fragment() {
         _binding = null
     }
 
-    private fun setupRecyclerView() {
+    private fun setupRecyclerView(listener: OnEntitySelectedListener? = null) {
         binding.entities.layoutManager = LinearLayoutManager(context)
-        binding.entities.adapter = EntityAdapter(dashboardViewModel.entities.value.orEmpty())
 
         // React to changes in model
         dashboardViewModel.entities.observe(viewLifecycleOwner) {
-            binding.entities.adapter = EntityAdapter(it.orEmpty())
+            binding.entities.adapter = EntityAdapter(it.orEmpty(), listener = listener ?: navigateToEntity)
+        }
+    }
+
+    private val returnEntityToHomeFragment = object : OnEntitySelectedListener {
+        override fun onEntitySelected(entityId: Int) {
+            setFragmentResult(REQUEST_KEY, bundleOf("entityId" to entityId))
+            findNavController().navigateUp()
+        }
+    }
+
+    private val navigateToEntity = object : OnEntitySelectedListener {
+        override fun onEntitySelected(entityId: Int) {
+            val action = DashboardFragmentDirections.actionNavigationHomeWithEntityId(entityId)
+            findNavController().navigate(action)
         }
     }
 }
