@@ -58,7 +58,7 @@ class EntityRepository(private val apiService: ApiService) {
                 Result.success(response.body()!!)
             } else {
                 Log.e("API_ERROR", "Failure: ${response.message()}");
-                Result.failure(Exception("API error: ${response.code()} ${response.message()}"))
+                Result.failure(Exception("API error: ${response.code()} ${response.errorBody().toString()}"))
             }
         } catch (e: Exception) {
             Result.failure(e)

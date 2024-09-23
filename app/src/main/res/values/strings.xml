@@ -18,4 +18,5 @@
     <string name="parent_hint">None</string>
     <string name="select_parent_button">Select</string>
     <string name="assign_to_parent_tag">Assign to parent tag</string>
+    <string name="tag_label">Tag</string>
 </resources>

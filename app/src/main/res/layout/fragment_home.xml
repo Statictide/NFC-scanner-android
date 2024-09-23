@@ -74,7 +74,6 @@
                     android:layout_marginStart="@dimen/padding_medium"
                     android:layout_marginEnd="0dp"
                     android:autofillHints="name"
-                    android:hint="@string/name_hint"
                     android:imeOptions="actionDone"
                     android:inputType="text"
                     android:textSize="@dimen/text_size_medium" />
@@ -112,18 +111,51 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_marginEnd="0dp"
-                    android:hint="@string/parent_hint"
                     android:textSize="@dimen/text_size_medium" />
 
                 <Button
                     android:id="@+id/delete_parent_button"
-                    android:layout_width="30dp"
+                    android:layout_width="20dp"
                     android:layout_height="30dp"
                     android:layout_marginStart="@dimen/padding_medium"
                     android:layout_marginEnd="0dp"
                     android:layout_marginVertical="0dp"
                     android:padding="0dp"
                     android:text="x">
+
+                </Button>
+            </LinearLayout>
+
+            <!-- Tag Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tag_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tag_label"
+                    android:textSize="@dimen/text_size_medium" />
+
+                <TextView
+                    android:id="@+id/tag_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="0dp"
+                    android:textSize="@dimen/text_size_medium" />
+
+                <Button
+                    android:id="@+id/asign_tag_button"
+                    android:layout_width="75dp"
+                    android:layout_height="30dp"
+                    android:layout_marginVertical="0dp"
+                    android:layout_marginStart="@dimen/padding_medium"
+                    android:layout_marginEnd="0dp"
+                    android:padding="0dp"
+                    android:text="Reasign">
 
                 </Button>
             </LinearLayout>

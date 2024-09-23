@@ -12,7 +12,7 @@
         android:id="@+id/entity_adapter_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Entity Name Placeholder"
+        android:hint="Unnamed"
         android:textSize="18sp"
         android:layout_marginBottom="@dimen/padding_medium"
         />
