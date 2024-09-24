@@ -46,9 +46,18 @@ class HomeFragment : Fragment() {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        binding.fragmentHomeChildrenRecyclerView.layoutManager = LinearLayoutManager(context)
+        assignParentDialog = setupAssignParentDialog(root)
+        assignTagDialog = setupAssignTagDialog(root)
+
+        return root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         // Bind view model
+        binding.fragmentHomeEntityGroup.visibility = View.GONE
+        binding.fragmentHomeChildrenRecyclerView.layoutManager = LinearLayoutManager(context)
         homeViewModel.entityClosure.observe(viewLifecycleOwner) {
             renderEntity(it)
         }
@@ -65,11 +74,6 @@ class HomeFragment : Fragment() {
                 fetchAndShowEntity(safeArgs.entityId)
             }
         }
-
-        assignParentDialog = setupAssignParentDialog(root)
-        assignTagDialog = setupAssignTagDialog(root)
-
-        return root
     }
 
     private fun renderEntity(entity: EntityClosureDTO?) {
@@ -90,17 +94,24 @@ class HomeFragment : Fragment() {
             }
         }
         binding.tagTextView.text = entity.tag_uid ?: "None"
+        binding.fragmentHomeChildrenRecyclerView.adapter = EntityAdapter(listOf(entity), showName = false)
 
         // Delete entity
         binding.fragmentHomeDeleteButton.setOnClickListener {
             lifecycleScope.launch { deleteEntity(entity.id) }
         }
 
-
+        // Assign parent
         binding.assignButton.isEnabled = true
         binding.selectParentButton.isEnabled = true
-        binding.fragmentHomeChildrenRecyclerView.adapter =
-            EntityAdapter(listOf(entity), showName = false)
+
+
+        // Remove parent
+        binding.deleteParentButton.setOnClickListener {
+            lifecycleScope.launch {
+                removeParent(homeViewModel.entityClosure.value!!)
+            }
+        }
 
         // Save name on update
         binding.nameView.setOnEditorActionListener { view, actionId, _ ->
@@ -114,12 +125,7 @@ class HomeFragment : Fragment() {
             false
         }
 
-        binding.deleteParentButton.setOnClickListener {
-            lifecycleScope.launch {
-                removeParent(homeViewModel.entityClosure.value!!)
-            }
-        }
-
+        // Assign tag
         binding.asignTagButton.setOnClickListener {
             assignTagDialog.show()
         }
@@ -233,7 +239,10 @@ class HomeFragment : Fragment() {
     private suspend fun assignEntityParent(entryId: Int, newParentId: Int) {
         val patchEntity = PatchEntityDTO(parent_id = MaybeInt(newParentId))
         EntityClient.client.patchEntity(entryId, patchEntity).onSuccess { entity ->
+            // Navigate to dashboard
             homeViewModel.entityClosure.value = entity
+            val action = HomeFragmentDirections.actionNavigationHomeToNavigationDashboard(DashboardFragment.ENTITY_VIEWER)
+            findNavController().navigate(action)
         }.onFailure { t ->
             Toast.makeText(context, t.message, Toast.LENGTH_LONG).show()
         }

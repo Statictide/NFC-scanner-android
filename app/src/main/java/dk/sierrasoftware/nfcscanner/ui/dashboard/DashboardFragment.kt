@@ -21,6 +21,7 @@ class DashboardFragment : Fragment() {
     companion object {
         val REQUEST_KEY: String = "DashboardFragment_REQUEST_KEY"
         val ENTITY_PICKER: String = "ENTITY_PICKER"
+        val ENTITY_VIEWER: String = "ENTITY_VIEWER"
     }
 
     private var _binding: FragmentDashboardBinding? = null

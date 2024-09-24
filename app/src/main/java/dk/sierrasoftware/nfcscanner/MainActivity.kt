@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
-        val appBarConfiguration = AppBarConfiguration(setOf(R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications))
+        val appBarConfiguration = AppBarConfiguration(setOf(R.id.navigation_dashboard))
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
@@ -188,15 +188,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 true
             }
-            R.id.action_reset_tag -> {
-                Toast.makeText(this, "Todo reset", Toast.LENGTH_LONG).show()
-                true
-            }
-            R.id.action_delete_entity -> {
-                // Show on home screen?
-                Toast.makeText(this, "Todo delete", Toast.LENGTH_LONG).show()
-                true
-            }
+            
             else -> super.onOptionsItemSelected(item)
         }
     }
