@@ -29,16 +29,18 @@ data class CheckForUpdateDTO(val version: String, val platform: String = "Androi
 data class CheckForUpdateResponseDTO(val update_mandatory: Boolean?, val update_recommended: Boolean?, val latestVersion: String?, val title: String?, val message: String?, val update_url: String?) :
     Parcelable
 
+@Parcelize
+data class LoginRequest(val username: String) :
+    Parcelable
 
-
-
-
+@Parcelize
+data class LoginResponse(val token: String) :
+    Parcelable
 
 
 @Parcelize
 data class MaybeInt(val value: Int?) :
     Parcelable
-
 
 @Parcelize
 data class MaybeString(val value: String?) :

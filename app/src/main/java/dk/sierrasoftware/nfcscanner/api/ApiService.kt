@@ -30,6 +30,11 @@ interface ApiService {
 
     @POST("/api/v0/check-for-update")
     suspend fun checkForUpdate(@Body entity: CheckForUpdateDTO): Response<CheckForUpdateResponseDTO>
+
+    @POST("auth/login")
+    suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
+
+
 }
 
 
