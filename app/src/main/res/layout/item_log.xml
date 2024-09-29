@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- item_entity -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    >
+
+    <!-- Parent Entity Name -->
+    <TextView
+        android:id="@+id/audit_log_adapter_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="Empty"
+        android:textSize="18sp"
+        android:layout_marginBottom="@dimen/padding_medium"
+        />
+
+</LinearLayout>

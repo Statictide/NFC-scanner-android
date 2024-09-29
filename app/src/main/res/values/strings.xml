@@ -2,7 +2,7 @@
     <string name="app_name">NFC Tag Scanner</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Entities</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="title_notifications">Audit log</string>
 
     <string name="title_scan_nfc">Scan NFC Tag</string>
     <string name="instructions_scan_nfc">Please scan an NFC tag to see its details.</string>

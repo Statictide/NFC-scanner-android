@@ -1,7 +1,9 @@
 package dk.sierrasoftware.nfcscanner.api
 
 import android.os.Parcelable
+import com.google.gson.annotations.SerializedName
 import kotlinx.parcelize.Parcelize
+import java.time.LocalDateTime
 
 // Gson cannot deserialize UInt. Using Int istead.
 
@@ -30,11 +32,6 @@ data class CheckForUpdateResponseDTO(val update_mandatory: Boolean?, val update_
     Parcelable
 
 
-
-
-
-
-
 @Parcelize
 data class MaybeInt(val value: Int?) :
     Parcelable
@@ -43,3 +40,24 @@ data class MaybeInt(val value: Int?) :
 @Parcelize
 data class MaybeString(val value: String?) :
     Parcelable
+
+
+@Parcelize
+data class AuditLogResponse(val parent_history: List<AuditLogEntry>) :
+    Parcelable
+@Parcelize
+data class AuditLogEntry(
+    @SerializedName("parent_history_id") val parentHistoryId: Int,
+    @SerializedName("entity_name") val entityName: String,
+    @SerializedName("old_parent_name") val oldParentName: String?,
+    @SerializedName("new_parent_name") val newParentName: String?,
+    @SerializedName("created_at") val createdAt: String
+) :
+    Parcelable
+
+/**
+ * @Parcelize
+ * data class AuditLogEntry(val id: Int, val entity_id: Int, val entity_name: String, val action: String, val created_at: String) :
+ *     Parcelable
+ *
+ */

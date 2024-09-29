@@ -6,7 +6,6 @@ import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.PATCH
 import retrofit2.http.POST
-import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -18,8 +17,8 @@ interface ApiService {
 
     @GET("/api/v0/entities/{id}")
     suspend fun getEntity(@Path("id") id: Int): Response<EntityClosureDTO>
-    @PUT("/api/v0/entities/{id}")
-    suspend fun updateEntity(@Path("id") id: Int, @Body entity: CreateEntityDTO): Response<EntityClosureDTO>
+    //@PUT("/api/v0/entities/{id}")
+    //suspend fun updateEntity(@Path("id") id: Int, @Body entity: CreateEntityDTO): Response<EntityClosureDTO>
     @PATCH("/api/v0/entities/{id}")
     suspend fun patchEntity(@Path("id") id: Int, @Body entity: PatchEntityDTO): Response<EntityClosureDTO>
     @DELETE("/api/v0/entities/{id}")
@@ -30,6 +29,10 @@ interface ApiService {
 
     @POST("/api/v0/check-for-update")
     suspend fun checkForUpdate(@Body entity: CheckForUpdateDTO): Response<CheckForUpdateResponseDTO>
+
+    @GET("/api/v0/history")
+    suspend fun getHistory (): Response<AuditLogResponse>
+
 }
 
 
